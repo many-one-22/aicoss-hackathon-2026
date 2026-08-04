@@ -12,8 +12,8 @@ class weight를 자동 계산해서 가중 CrossEntropyLoss를 적용한다. (--
 
 사용법:
     python train_polarity_classifier.py \
-        --train_file ../dataset/processed/train.jsonl \
-        --val_file ../dataset/processed/val.jsonl \
+        --train_file ../data/processed/train.jsonl \
+        --val_file ../data/processed/val.jsonl \
         --output_dir ./kcelectra-polarity \
         --epochs 3 --batch_size 16
 

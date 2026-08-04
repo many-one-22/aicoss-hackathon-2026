@@ -13,7 +13,7 @@ extract_trend_tags.py
 KcELECTRA를 파인튜닝한 뒤, 그 모델의 predict 함수를 polarity_fn 자리에 넣어 교체하면 된다.
 
 사용법:
-    python extract_trend_tags.py --keywords food_aspect_keywords.json --text "그 집 국밥 진짜 맛있고 가격도 착해요. 근데 주차가 너무 힘들어요."
+    python scripts/inference/extract_trend_tags.py --keywords data/resources/food_aspect_keywords.json --text "그 집 국밥 진짜 맛있고 가격도 착해요. 근데 주차가 너무 힘들어요."
 """
 
 import argparse
