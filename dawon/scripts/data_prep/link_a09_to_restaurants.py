@@ -9,10 +9,10 @@ namdo.sqlite의 restaurants 테이블에는 있다. 이름+주소로 매칭해�
 (build_restaurant_sentiment.py는 poi_id가 없으면 자동으로 이름+주소 해시 ID를 대신 만든다.)
 
 사용법:
-    python link_a09_to_restaurants.py \
-        --a09 광주전남_향토음식점_후보_체인제외.csv \
-        --db namdo.sqlite \
-        --output a09_linked.csv
+    python dawon/scripts/data_prep/link_a09_to_restaurants.py \
+        --a09 dawon/data/raw/광주전남_향토음식점_후보_체인제외.csv \
+        --db dawon/data/processed/namdo.sqlite \
+        --output dawon/data/processed/a09_linked.csv
 """
 
 import argparse

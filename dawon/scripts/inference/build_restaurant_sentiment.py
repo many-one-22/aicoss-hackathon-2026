@@ -62,7 +62,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--input", required=True, help="B-A09 맛집 코퍼스 CSV")
     ap.add_argument("--output", default="restaurant_sentiment.csv")
-    ap.add_argument("--keywords", default="data/resources/food_aspect_keywords.json")
+    ap.add_argument("--keywords", default="dawon/data/resources/food_aspect_keywords.json")
     ap.add_argument("--model_dir", default=None, help="실제 KcELECTRA 모델 경로. 없으면 placeholder 사전 기반 사용")
     ap.add_argument("--limit", type=int, default=None, help="테스트용 상위 N개만 처리")
     ap.add_argument("--col_name", default="음식점명")
