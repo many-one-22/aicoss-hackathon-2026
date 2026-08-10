@@ -56,6 +56,18 @@ def _brand(place):
     return str(place or "")
 
 
+def _load_geocode():
+    """geocode_cache.csv (address→lat,lng) 로드. 좌표 없는 식당 보강용(Kakao 지오코딩 결과)."""
+    path = PROC / "geocode_cache.csv"
+    cache = {}
+    if path.exists():
+        with open(path, encoding="utf-8-sig") as f:
+            for r in csv.DictReader(f):
+                if r.get("lat") and r.get("lng"):
+                    cache[r["address"]] = (r["lat"], r["lng"])
+    return cache
+
+
 def load_restaurants(con):
     # 1) TL+VL 로드 (서비스 DB는 학습용이 아니므로 둘 다 필요)
     raw = []
@@ -75,11 +87,15 @@ def load_restaurants(con):
         else:
             singles.append([r])
 
+    geocode = _load_geocode()  # 좌표 없는 식당을 Kakao 지오코딩 캐시로 보강
     merged = []
     for recs in list(groups.values()) + singles:
         rec = {f: next((r.get(f) for r in recs
                         if r.get(f) not in (None, "", "없음")), recs[0].get(f))
                for f in BASE_FIELDS}
+        # 좌표 결측 → 지오코딩 캐시에서 채움
+        if (not rec.get("lat")) and rec.get("address") in geocode:
+            rec["lat"], rec["lng"] = geocode[rec["address"]]
         rec["menu"] = _union_menu(r.get("menu") for r in recs)
         rec["split"] = "+".join(sorted({r["_split"] for r in recs}))
         # 3) 합친 메뉴 기준 태그 재계산 (부분 메뉴로 계산된 기존 태그 대체)
