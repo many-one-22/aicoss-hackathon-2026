@@ -22,6 +22,17 @@ from nutrition_lookup import lookup_nutrition
 
 DB = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
 
+_ranker = None
+
+
+def _get_ranker():
+    """EmbedRanker 지연 로드(임베딩 81MB + 모델). query 없는 호출엔 안 씀."""
+    global _ranker
+    if _ranker is None:
+        from embed_rank import EmbedRanker
+        _ranker = EmbedRanker()
+    return _ranker
+
 
 def _load_markets():
     con = sqlite3.connect(DB)
@@ -63,12 +74,19 @@ def _region_markets(address, k=3):
 
 
 def recommend(region=None, ingredient=None, dish_type=None, health=None,
-              exclude_chain=True, top_n=10):
-    """필터 → 후보(하드필터) → local_score 상위 top_n → 시세·영양·지역시장 보강.
+              exclude_chain=True, top_n=10, query=None):
+    """필터 → 후보(하드필터) → 랭킹 상위 top_n → 시세·영양·지역시장 보강.
+    query 있으면 임베딩(KoSBERT) 의미순, 없으면 기존 local_score DESC 순.
     반환: {total_candidates, returned, results:[식당+보강정보]}."""
     cands = hard_filter(region, ingredient, dish_type, health, exclude_chain)
+    total = len(cands)  # 하드필터 통과 수 (재정렬로 cands가 줄기 전에 확보)
+    if query:  # 질의 있으면 임베딩 유사도로 재정렬(하드필터 후보 한정)
+        order = _get_ranker().rank(query, [c["rowid"] for c in cands], top_n)
+        pos = {rid: i for i, rid in enumerate(order)}
+        cands = sorted((c for c in cands if c["rowid"] in pos), key=lambda c: pos[c["rowid"]])
+    top = cands[:top_n]
     results = []
-    for r in cands[:top_n]:  # hard_filter가 local_score DESC 정렬 → 그대로 상위 N
+    for r in top:  # query면 임베딩 순, 아니면 local_score DESC 순
         area = "광주" if r["region_group"] == "광주 5개구" else "전남"
         results.append({
             "place": r["place"], "region_group": r["region_group"],
@@ -80,7 +98,7 @@ def recommend(region=None, ingredient=None, dish_type=None, health=None,
             "nutrition": lookup_nutrition(r["menu"]),        # 음식 영양
             "region_markets": _region_markets(r["address"]),  # 같은 시·군 전통시장
         })
-    return {"total_candidates": len(cands), "returned": len(results), "results": results}
+    return {"total_candidates": total, "returned": len(results), "results": results}
 
 
 if __name__ == "__main__":
