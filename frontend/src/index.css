@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: #ede7dc; /* 폰 프레임 바깥 배경 */
+  font-family: 'Gothic A1', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+/* 가로 스크롤 영역 스크롤바 숨김 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
