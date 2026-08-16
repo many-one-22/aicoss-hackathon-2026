@@ -1,4 +1,5 @@
-/* ⑤ 모바일 산지·시세 — 식재료 동적 데이터 + 기간 탭(4주/3개월/1년) 그래프 + 관련 시장 */
+/* ⑤ 산지·시세 — 시세품목 실데이터 + 기간 탭(3·6·12개월) 실측 추이 그래프 + 가까운 시장.
+   모든 수치는 namdo.sqlite seasonality(KAMIS 실측) 기반. */
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
@@ -6,32 +7,44 @@ import { LineChart, Line, ResponsiveContainer, ReferenceLine, YAxis, Tooltip } f
 import * as api from '../api/client.js'
 import ChatFab from '../components/ChatFab.jsx'
 
-const PERIODS = ['4주', '3개월', '1년']
-const won = (n) => n.toLocaleString('ko-KR')
+const PERIODS = [
+  { key: '3개월', n: 3 },
+  { key: '6개월', n: 6 },
+  { key: '1년', n: 12 },
+]
+const won = (n) => (n ?? 0).toLocaleString('ko-KR')
 
 export default function Ingredient() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [ing, setIng] = useState(null)
   const [markets, setMarkets] = useState([])
-  const [period, setPeriod] = useState('4주')
+  const [period, setPeriod] = useState('1년')
 
   useEffect(() => {
     api.getIngredient(id).then((res) => {
       setIng(res)
-      setPeriod('4주')
+      setPeriod('1년')
     })
-    api.getMarkets().then(setMarkets)
+    api.detectLocation().then((loc) => api.getMarkets(loc).then((m) => setMarkets(m.slice(0, 3))))
   }, [id])
 
-  const d = ing?.ranges[period]
-  const chartData = useMemo(() => (d ? d.series.map((v, i) => ({ i, v })) : []), [d])
+  const slice = useMemo(() => {
+    if (!ing) return []
+    const n = PERIODS.find((p) => p.key === period)?.n ?? 12
+    return ing.trend.slice(-n)
+  }, [ing, period])
 
-  if (!ing || !d) return <div className="p-10 text-center text-muted">불러오는 중…</div>
+  const chartData = useMemo(() => slice.map(([ym, v], i) => ({ i, v, ym })), [slice])
+  const sliceAvg = useMemo(
+    () => (slice.length ? Math.round(slice.reduce((a, [, v]) => a + v, 0) / slice.length) : 0),
+    [slice],
+  )
 
-  const vs = d.vsAvgPct
-  const vsTxt = vs < 0 ? `평년比 ${Math.abs(vs)}%↓` : vs > 0 ? `평년比 ${vs}%↑` : '평년 수준'
-  const relatedMarkets = markets.filter((m) => (ing.markets || []).includes(m.name))
+  if (!ing) return <div className="p-10 text-center text-muted">불러오는 중…</div>
+
+  const vs = ing.vsAvgPct
+  const vsTxt = vs < 0 ? `연평균比 ${Math.abs(vs)}%↓` : vs > 0 ? `연평균比 ${vs}%↑` : '연평균 수준'
 
   return (
     <div>
@@ -42,12 +55,15 @@ export default function Ingredient() {
         {ing.name} · 산지·시세
       </header>
 
-      {/* 타이틀 + 평년비 */}
+      {/* 타이틀 + 연평균비 */}
       <div className="bg-cream px-5 pb-4 pt-4">
         <h1 className="font-serif text-[28px] font-black text-ink">{ing.name}</h1>
-        <p className="mt-0.5 text-[13px] text-muted">산지 {ing.origin} · 제철 {ing.season}</p>
+        <p className="mt-0.5 text-[13px] text-muted">
+          {ing.region} 시세 · 성수기 {ing.season}
+          {ing.inSeason && <span className="ml-2 rounded-full bg-terra/10 px-2 py-0.5 text-[11px] font-bold text-terra">지금 제철</span>}
+        </p>
         <p className="mt-1.5 text-[15px] font-bold text-seasonink">
-          {vsTxt} <span className="text-[12px] font-normal text-muted">KAMIS 소매가 · 오늘 기준</span>
+          {vsTxt} <span className="text-[12px] font-normal text-muted">KAMIS 실측 · 오늘 기준</span>
         </p>
       </div>
 
@@ -58,13 +74,13 @@ export default function Ingredient() {
           <div className="flex gap-1.5">
             {PERIODS.map((p) => (
               <button
-                key={p}
-                onClick={() => setPeriod(p)}
+                key={p.key}
+                onClick={() => setPeriod(p.key)}
                 className={`rounded-full px-3 py-1 text-[12px] font-semibold ${
-                  p === period ? 'bg-green text-white' : 'border border-line bg-white text-muted'
+                  p.key === period ? 'bg-green text-white' : 'border border-line bg-white text-muted'
                 }`}
               >
-                {p}
+                {p.key}
               </button>
             ))}
           </div>
@@ -75,53 +91,53 @@ export default function Ingredient() {
               <YAxis hide domain={['dataMin - 800', 'dataMax + 800']} />
               <Tooltip
                 formatter={(v) => [`${won(v)}원`, '시세']}
-                labelFormatter={() => ''}
+                labelFormatter={(i) => chartData[i]?.ym ?? ''}
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #EAE3D7' }}
               />
-              <ReferenceLine y={d.avg} stroke="#A7A29A" strokeDasharray="3 4" strokeWidth={1.5} />
+              <ReferenceLine y={sliceAvg} stroke="#A7A29A" strokeDasharray="3 4" strokeWidth={1.5} />
               <Line type="monotone" dataKey="v" stroke="#1E4D3A" strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="mt-1.5 text-[11px] text-muted-soft">실선 = 실측 · 보조선 = 평년 동기 · 데이터 KAMIS(데모 시드값)</p>
+        <p className="mt-1.5 text-[11px] text-muted-soft">실선 = 월별 실측 · 보조선 = 기간 평균 · 데이터 KAMIS(namdo.sqlite)</p>
       </div>
 
       {/* 통계 3종 */}
       <div className="grid grid-cols-3 gap-2.5 px-5 pt-4">
-        <Stat label="오늘 시세" value={`${won(d.current)}원`} sub="kg당 소매가" />
-        <Stat label="평년가" value={`${won(d.avg)}원`} sub="동기간 평균" />
+        <Stat label="오늘 시세" value={`${won(ing.current)}원`} sub={ing.unit ? `${ing.unit}당` : '소매가'} />
+        <Stat label="연평균가" value={`${won(ing.avg)}원`} sub="12개월 평균" />
         <Stat
           label="전월 대비"
-          value={`${d.wowPct > 0 ? '+' : ''}${d.wowPct}%`}
-          sub={d.wowPct < 0 ? '하락 추세' : d.wowPct > 0 ? '상승 추세' : '보합'}
-          accent={d.wowPct < 0 ? 'text-seasonink' : 'text-terra'}
+          value={`${ing.wowPct > 0 ? '+' : ''}${ing.wowPct}%`}
+          sub={ing.wowPct < 0 ? '하락 추세' : ing.wowPct > 0 ? '상승 추세' : '보합'}
+          accent={ing.wowPct <= 0 ? 'text-seasonink' : 'text-terra'}
         />
       </div>
 
-      {/* 향토음식 */}
-      <div className="px-5 pt-5">
-        <b className="text-[15px] font-bold text-ink">이 식재료로 만드는 향토음식</b>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {ing.dishes.map((dish) => (
-            <span key={dish} className="rounded-full border border-line bg-white px-3 py-1.5 text-[13px] text-ink/80">
-              {dish}
-            </span>
-          ))}
+      {/* 관련 향토음식 */}
+      {ing.dishes.length > 0 && (
+        <div className="px-5 pt-5">
+          <b className="text-[15px] font-bold text-ink">이 재료가 들어가는 음식</b>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {ing.dishes.map((dish) => (
+              <span key={dish} className="rounded-full border border-line bg-white px-3 py-1.5 text-[13px] text-ink/80">
+                {dish}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* 살 수 있는 전통시장 */}
+      {/* 가까운 전통시장 */}
       <div className="px-5 pb-24 pt-5">
-        <b className="text-[15px] font-bold text-ink">살 수 있는 전통시장</b>
-        <div className="mt-2 flex h-[120px] items-center justify-center rounded-xl bg-season text-[12px] text-muted-soft">
-          지도: 산지 · 취급 시장 핀
-        </div>
+        <b className="text-[15px] font-bold text-ink">가까운 전통시장</b>
         <div className="mt-2.5 flex flex-col gap-2.5">
-          {relatedMarkets.map((m) => (
+          {markets.map((m) => (
             <Link key={m.id} to="/market" className="rounded-2xl border border-line bg-white p-3.5">
               <b className="block text-[15px] font-bold text-ink">{m.name}</b>
               <span className="text-[12px] text-muted">
-                {m.city} · 점포 {m.stores} · {(m.items || []).slice(0, 2).join('·')}
+                {m.sido} {m.city} · {(m.items || []).slice(0, 3).join('·')}
+                {m._distKm != null ? ` · ${m._distKm}km` : ''}
               </span>
             </Link>
           ))}

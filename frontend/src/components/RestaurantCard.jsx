@@ -15,6 +15,7 @@ export default function RestaurantCard({ restaurant: r, why = [], showHeart = tr
         <b className="block truncate text-[16px] font-bold text-ink">{r.name}</b>
         <span className="block truncate text-[12px] text-muted">
           {r.city} · {r.key}
+          {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
         </span>
         {why.length > 0 ? (
           <span className="mt-0.5 block text-[11px] font-semibold text-terra">
