@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parents[2] / "aicoss-hackathon-2026" / "minseo" / "data" / "processed" / "namdo.sqlite"
+DB_PATH = Path(__file__).resolve().parents[2] / "minseo" / "data" / "processed" / "namdo.sqlite"
 
 
 def main():
