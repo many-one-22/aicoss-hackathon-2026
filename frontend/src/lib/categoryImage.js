@@ -1,33 +1,96 @@
 /* 요리 카테고리별 대표 이미지 — restaurants.real.json의 key(대표 dish_type)로 바로 매핑한다.
    실데이터 key는 13종의 넓은 분류(카페/국물요리/한식/면/구이/회·생물/양식/치킨/한상차림/주점/찜/중식/일식)라
    이름 그대로 딕셔너리 조회만 하면 된다. 지금은 Wikimedia Commons의 실제 한식 사진(무료/저작권 문제없음)이고,
-   실사 준비되면 CATEGORY_IMAGES/INGREDIENT_IMAGES 값만 바꾸면 전체 화면에 한 번에 반영된다. */
+   실사 준비되면 CATEGORY_IMAGES/INGREDIENT_IMAGES 값만 바꾸면 전체 화면에 한 번에 반영된다.
+   카테고리마다 사진을 여러 장 두고 가게 id 기준으로 골고루 분산시켜서, 같은 카테고리 가게들이
+   전부 똑같은 사진을 쓰지 않도록 한다. */
 
 /* Wikimedia Commons 실사진의 CDN 직링크. Special:FilePath 리다이렉트 대신 최종 URL을 써야
    여러 장을 동시에 불러올 때 위키미디어 쪽 속도제한(429)에 걸리지 않는다. */
 export const CATEGORY_IMAGES = {
-  '카페': 'https://upload.wikimedia.org/wikipedia/commons/7/76/Cup_of_coffee_with_latte_art_2016.jpg',
-  '국물요리': 'https://upload.wikimedia.org/wikipedia/commons/b/b4/Korean_stew-Doenjang_jjigae-01.jpg',
-  '한식': 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Korean_cuisine-Hoedeopbap-01.jpg',
-  '면': 'https://upload.wikimedia.org/wikipedia/commons/7/78/Korean_cold_noodle_soup-Naengmyeon-01.jpg',
-  '구이': 'https://upload.wikimedia.org/wikipedia/commons/2/23/Korean.cuisine-Gui_yori-01.jpg',
-  '회·생물': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Korean_cuisine-Saengseon_hoe-02.jpg',
-  '양식': 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Beef_steak_of_the_set_of_dinner.jpg',
-  '치킨': 'https://upload.wikimedia.org/wikipedia/commons/a/aa/Korean_fried_chicken_240206.jpg',
-  '한상차림': 'https://upload.wikimedia.org/wikipedia/commons/2/21/0606_hanjeongsik_damyang.jpg',
-  '주점': 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Buchimgae_and_makgeolli.jpg',
-  '찜': 'https://upload.wikimedia.org/wikipedia/commons/3/30/Jeonbok-jjim.jpg',
-  '중식': 'https://upload.wikimedia.org/wikipedia/commons/5/51/Jajangmyeon_1.jpg',
-  '일식': 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Japanese_Sushi_platter.jpg',
+  '카페': [
+    'https://upload.wikimedia.org/wikipedia/commons/7/76/Cup_of_coffee_with_latte_art_2016.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/be/Iced_Americano_1.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/c/c2/Cold_brew_for_Terra.jpg',
+  ],
+  '국물요리': [
+    'https://upload.wikimedia.org/wikipedia/commons/b/b4/Korean_stew-Doenjang_jjigae-01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a6/Budae-jjigae_1.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/3c/Korean_stew-Budae_jjigae-01.jpg',
+  ],
+  '한식': [
+    'https://upload.wikimedia.org/wikipedia/commons/5/5a/Korean_cuisine-Hoedeopbap-01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fe/Bibimbap_with_egg.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/33/Stone_bowl_Bibimbap_(29938996780).jpg',
+  ],
+  '면': [
+    'https://upload.wikimedia.org/wikipedia/commons/7/78/Korean_cold_noodle_soup-Naengmyeon-01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/b8/Korean.noodle-Kalguksu-01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e2/Kal-guksu_4.jpg',
+  ],
+  '구이': [
+    'https://upload.wikimedia.org/wikipedia/commons/2/23/Korean.cuisine-Gui_yori-01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/f/fd/Korean.cuisine-Bulgogi-01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/76/Bulgogi_3.jpg',
+  ],
+  '회·생물': [
+    'https://upload.wikimedia.org/wikipedia/commons/4/45/Korean_cuisine-Saengseon_hoe-02.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/7/79/Sashimi_plate.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/11/Korean_cuisine-Jeonbok_hoe-01.jpg',
+  ],
+  '양식': [
+    'https://upload.wikimedia.org/wikipedia/commons/c/c5/Beef_steak_of_the_set_of_dinner.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/e/e2/Plate_of_Pasta_(Unsplash).jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/b/bc/Two_pizza_slices.jpg',
+  ],
+  '치킨': [
+    'https://upload.wikimedia.org/wikipedia/commons/a/aa/Korean_fried_chicken_240206.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/6/6a/Yangnyeom_Chicken_Korean_fried_chicken.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/1e/Korean.cuisine-Yangnyeom_chicken-01.jpg',
+  ],
+  '한상차림': [
+    'https://upload.wikimedia.org/wikipedia/commons/2/21/0606_hanjeongsik_damyang.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/87/Korean_cuisine-Kimchi_and_banchan-01.jpg',
+  ],
+  '주점': [
+    'https://upload.wikimedia.org/wikipedia/commons/4/4e/Buchimgae_and_makgeolli.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/8/84/Soju.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/97/Pajeon.jpg',
+  ],
+  '찜': [
+    'https://upload.wikimedia.org/wikipedia/commons/3/30/Jeonbok-jjim.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/d/df/Korean_steamed_food-Agujjim-01.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/96/Korean_braised_beef_short_ribs-Galbijjim.jpg',
+  ],
+  '중식': [
+    'https://upload.wikimedia.org/wikipedia/commons/5/51/Jajangmyeon_1.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/3e/Jjamppong_1.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/1/12/Jjamppong_2.jpg',
+  ],
+  '일식': [
+    'https://upload.wikimedia.org/wikipedia/commons/d/d5/Japanese_Sushi_platter.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/9/97/A_bowl_of_ramen_in_Osaka%2C_Japan.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/a/a4/Bowl_of_shio_ramen_with_pork.jpg',
+  ],
 }
 
-const DEFAULT_IMAGE = CATEGORY_IMAGES['한식']
+const DEFAULT_IMAGE = CATEGORY_IMAGES['한식'][0]
+
+/* 가게 id를 시드로 카테고리 사진 풀에서 하나를 고정 선택 — 새로고침해도 같은 가게는 항상
+   같은 사진, 같은 카테고리 안의 다른 가게는 다른 사진이 나온다. */
+function pickFromPool(pool, seed) {
+  if (!pool || pool.length === 0) return DEFAULT_IMAGE
+  const n = Number(seed)
+  const idx = Number.isFinite(n) ? Math.abs(n) % pool.length : 0
+  return pool[idx]
+}
 
 /* 식당 카드/상세용 이미지 — data 항목에 image 필드(직접 수집한 실사진 경로/URL)가
-   있으면 그걸 최우선으로 쓰고, 없으면 key(대표 dish_type) 기준 카테고리 스톡사진으로 대체한다. */
+   있으면 그걸 최우선으로 쓰고, 없으면 key(대표 dish_type) 카테고리 풀에서 id 기준으로 하나 골라 쓴다. */
 export function imageFor(r) {
   if (r?.image) return r.image
-  return CATEGORY_IMAGES[r?.key] || DEFAULT_IMAGE
+  const pool = CATEGORY_IMAGES[r?.key]
+  return pool ? pickFromPool(pool, r?.id) : DEFAULT_IMAGE
 }
 
 /* 제철 식재료용 이미지 — seasonal.real.json에 등장하는 93종 각각에 실제 그 재료 사진을 매칭.
