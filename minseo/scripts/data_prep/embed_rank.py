@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-"""임베딩 기반 후보 재정렬. 순수 함수(_rank_by_vector) + EmbedRanker(런타임)."""
+"""임베딩 기반 후보 재정렬. 순수 함수(_rank_by_vector) + EmbedRanker(런타임).
+
+[수정 이력] OUT 경로를 minseo/ 개인 폴더가 아니라 레포 루트 data/processed/embeddings 기준으로 통일.
+build_embeddings.py가 저장하는 위치와 반드시 같아야 함 (다르면 임베딩 파일을 못 찾거나,
+옛날 임베딩을 읽어서 rowid가 어긋난 결과가 나옴).
+"""
 import sys
 from pathlib import Path
 import numpy as np
@@ -9,7 +14,9 @@ try:
 except Exception:
     pass
 
-PROJECT = Path(__file__).resolve().parent.parent.parent
+# 이 파일이 minseo/scripts/data_prep/embed_rank.py에 있다는 가정:
+#   parents[0]=data_prep, parents[1]=scripts, parents[2]=minseo, parents[3]=레포 루트
+PROJECT = Path(__file__).resolve().parents[3]
 OUT = PROJECT / "data" / "processed" / "embeddings"
 MODEL_NAME = "jhgan/ko-sroberta-multitask"
 
@@ -29,6 +36,11 @@ class EmbedRanker:
 
     def __init__(self, artifacts_dir=OUT, model_name=MODEL_NAME):
         self._dir = Path(artifacts_dir)
+        if not (self._dir / "embeddings.npy").exists():
+            raise FileNotFoundError(
+                f"임베딩 파일을 찾을 수 없습니다: {self._dir}\n"
+                f"build_embeddings.py를 먼저 실행하세요 (같은 레포 루트 DB 기준으로)."
+            )
         self.emb = np.load(self._dir / "embeddings.npy")
         self.rowids = np.load(self._dir / "rowids.npy")
         self._pos = {int(r): i for i, r in enumerate(self.rowids)}

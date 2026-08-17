@@ -5,6 +5,10 @@
 필터 결합 규칙: 필터 '내부' 복수선택 = OR, 필터 '간' = AND.
 건강필터의 제외 키워드는 손수 처리사전(생물분류 기반). 알레르기는 과다제외가 안전한 방향이라
 모호한 1글자('굴' 등)도 포함해 놓친 것보다 넉넉히 거른다.
+
+[수정 이력] DB 경로를 minseo/ 개인 폴더가 아니라 레포 루트 data/processed/ 기준으로 통일.
+(namdo.sqlite가 폴더별로 따로 있어서 rowid가 어긋나는 사고가 있었음 — build_embeddings.py와
+반드시 같은 DB를 봐야 함.)
 """
 import sqlite3
 import sys
@@ -15,7 +19,9 @@ try:
 except Exception:
     pass
 
-DB = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
+# 이 파일이 minseo/scripts/data_prep/hard_filter.py에 있다는 가정:
+#   parents[0]=data_prep, parents[1]=scripts, parents[2]=minseo, parents[3]=레포 루트
+DB = Path(__file__).resolve().parents[3] / "data" / "processed" / "namdo.sqlite"
 
 # 응답에 실을 컬럼(임베딩 랭커·프론트 카드용). rowid = 임베딩 후보 매칭 키
 COLS = ["rowid", "place", "region_group", "cuisine_type", "dish_type", "ingredient_category",
@@ -73,6 +79,8 @@ def hard_filter(region=None, ingredient=None, dish_type=None, health=None, exclu
 
 
 if __name__ == "__main__":
+    print(f"[정보] DB: {DB} (존재: {DB.exists()})")
+
     def viol(rows, field, kws):
         return [r["place"] for r in rows if any(k in (r[field] or "") for k in kws)]
 

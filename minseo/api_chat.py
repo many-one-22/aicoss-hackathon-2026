@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 """KoSBERT 의미검색 챗봇 백엔드 엔드포인트 (민서).
 자연어 질의 → retrieve()(하드필터 + KoSBERT 임베딩) → 식당 결과(JSON).
 프론트 챗봇이 이걸 호출하면 토큰매칭 대신 '진짜 의미검색'이 된다.
 (예: '전복요리' → 장어집이 아니라 진짜 전복 전문점)
-
 - 전체 27,573개 식당을 검색(프론트 번들 3,500개 한계 없음 — 백엔드가 다 가짐).
 - 서버 시작 후 첫 질의 때 임베딩(81MB)+KoSBERT 모델 1회 로드(수 초).
 - seeun 백엔드(FastAPI)에 이 로직을 통합 예정. CORS 열려 있어 프론트가 바로 호출 가능.
 - 응답은 프론트 restaurants.real.json 과 동일한 카드 객체(전체정보) → 프론트가 번들에
   없는 식당도 이 정보만으로 카드·상세를 바로 렌더(id로 재조회 안 함).
+
+[수정 이력] DB 경로를 minseo/ 자기 자신 기준이 아니라 레포 루트 data/processed/ 기준으로 통일.
+(레포 루트 namdo.sqlite가 팀 공식 기준 — build_embeddings.py/hard_filter.py와 반드시 같은
+파일을 봐야 rowid가 안 어긋남. minseo/의 옛날 사본은 삭제됨.)
 
 실행:
     pip install fastapi uvicorn
@@ -19,15 +23,36 @@
 import sqlite3
 import sys
 from pathlib import Path
-
+from typing import Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent  # minseo/
 sys.path.insert(0, str(HERE / "scripts" / "data_prep"))
 from retrieve import retrieve
 
-DB = HERE / "data" / "processed" / "namdo.sqlite"
+# minseo/의 한 단계 위 = 레포 루트
+DB = HERE.parent / "data" / "processed" / "namdo.sqlite"
+
+# 검색어 안에서 의미를 흐리는 흔한 단어들. 이런 단어가 붙으면 임베딩이 핵심 명사(예: "전복")보다
+# "일반적인 음식/요리"라는 방향으로 쏠려서 변별력이 떨어짐 — 문장 임베딩 모델의 알려진 특성.
+# 검색 전에 미리 제거해서 핵심 단어에 신호를 집중시킨다.
+_FILLER_WORDS = [
+    "요리", "음식점", "음식", "맛집", "맛있는 곳", "맛있는곳",
+    "먹고 싶어", "먹고싶어", "먹고 싶은", "먹고싶은",
+    "추천해줘", "추천해주세요", "추천", "알려줘", "알려주세요",
+    "해줘", "찾아줘", "좋은 곳", "좋은곳", "괜찮은 곳", "괜찮은곳",
+    "먹을 만한", "먹을만한", "곳",
+]
+
+
+def _clean_query(q: str) -> str:
+    """필러 단어 제거. 다 지워서 빈 문자열이 되면 원본 그대로 반환 (안전장치)."""
+    cleaned = q
+    for w in _FILLER_WORDS:
+        cleaned = cleaned.replace(w, " ")
+    cleaned = " ".join(cleaned.split())
+    return cleaned if cleaned else q
 
 app = FastAPI(title="남도식탁 KoSBERT 챗봇")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -80,13 +105,20 @@ def _card(r, poi_id):
     }
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok", "db": str(DB), "db_exists": DB.exists()}
+
+
 @app.get("/chat")
-def chat(q: str, region: str | None = None, top_n: int = 4):
+def chat(q: str, region: Optional[str] = None, top_n: int = 4):
     """자연어 q(+선택 region) → KoSBERT 의미검색 상위 top_n 식당(카드 전체정보)."""
-    res = retrieve(query=q, filters={"region": region} if region else None, top_n=top_n)
+    cleaned_q = _clean_query(q)
+    res = retrieve(query=cleaned_q, filters={"region": region} if region else None, top_n=top_n)
     poi = _poi_map([r["rowid"] for r in res])
     return {
         "query": q,
+        "cleaned_query": cleaned_q,
         "engine": "KoSBERT",
         "results": [_card(r, poi.get(r["rowid"])) for r in res],
     }

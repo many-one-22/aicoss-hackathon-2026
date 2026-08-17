@@ -5,6 +5,10 @@
 ⚠️ 정합성: 임베딩은 restaurants.rowid 를 매칭키로 쓴다. build_db.py 가 DROP+재생성하며
 rowid 를 재할당할 수 있으므로, DB 재빌드(build_db.py) 후에는 이 스크립트를 반드시 재실행해
 임베딩을 재생성해야 한다(안 하면 rowid 어긋나 엉뚱한 식당이 랭킹됨).
+
+[수정 이력] DB/OUT 경로를 minseo/ 개인 폴더가 아니라 레포 루트 data/processed/ 기준으로 통일.
+팀 전체가 이 경로 하나만 보는 걸로 합의됨 (namdo.sqlite가 폴더별로 따로 있으면 rowid가
+어긋나서 검색 결과가 엉망이 되는 사고가 실제로 있었음).
 """
 import sqlite3
 import sys
@@ -16,7 +20,9 @@ try:
 except Exception:
     pass
 
-PROJECT = Path(__file__).resolve().parent.parent.parent
+# 이 파일이 minseo/scripts/data_prep/build_embeddings.py에 있다는 가정:
+#   parents[0]=data_prep, parents[1]=scripts, parents[2]=minseo, parents[3]=레포 루트
+PROJECT = Path(__file__).resolve().parents[3]
 DB = PROJECT / "data" / "processed" / "namdo.sqlite"
 OUT = PROJECT / "data" / "processed" / "embeddings"
 MODEL_NAME = "jhgan/ko-sroberta-multitask"
@@ -53,4 +59,6 @@ def build(limit=None, out_dir=None):
 
 
 if __name__ == "__main__":
+    print(f"[정보] DB: {DB} (존재: {DB.exists()})")
+    print(f"[정보] 저장 위치: {OUT}")
     build()
