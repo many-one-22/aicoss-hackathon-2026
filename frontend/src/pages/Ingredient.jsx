@@ -92,20 +92,6 @@ export default function Ingredient() {
         />
       </div>
 
-      {/* 관련 향토음식 */}
-      {ing.dishes.length > 0 && (
-        <div className="px-5 pt-5">
-          <b className="text-[15px] font-bold text-ink">이 재료가 들어가는 음식</b>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {ing.dishes.map((dish) => (
-              <span key={dish} className="rounded-full border border-line bg-white px-3 py-1.5 text-[13px] text-ink/80">
-                {dish}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* 가까운 전통시장 */}
       <div className="px-5 pb-24 pt-5">
         <b className="text-[15px] font-bold text-ink">가까운 전통시장</b>

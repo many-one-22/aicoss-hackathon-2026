@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 *.zip
 .vscode/
+# 임베딩 산출물 (대용량, 커밋 금지 ? build_embeddings.py로 생성)
+data/processed/embeddings/
+frontend/aicoss-hackathon-2026/
