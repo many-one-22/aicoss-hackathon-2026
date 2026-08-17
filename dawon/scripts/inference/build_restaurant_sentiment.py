@@ -17,10 +17,10 @@ B-A09(광주전남 맛집 코퍼스)의 '설명' 텍스트를 감성분석 파�
         --output restaurant_sentiment.csv --limit 200
 
 사용법 (실제 KcELECTRA 모델, 정식 실행):
-    python build_restaurant_sentiment.py \
-        --input 광주전남_향토음식점_후보_체인제외.csv \
-        --model_dir ../kcelectra-polarity/best_model \
-        --output restaurant_sentiment.csv
+    python scripts/inference/build_restaurant_sentiment.py \
+  --input data/processed/a09_linked.csv \
+  --model_dir models/kcelectra-polarity/best_model \
+  --output data/processed/restaurant_sentiment.csv
 """
 
 import argparse
@@ -62,7 +62,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--input", required=True, help="B-A09 맛집 코퍼스 CSV")
     ap.add_argument("--output", default="restaurant_sentiment.csv")
-    ap.add_argument("--keywords", default="dawon/data/resources/food_aspect_keywords.json")
+    ap.add_argument("--keywords", default="data/resources/food_aspect_keywords.json")
     ap.add_argument("--model_dir", default=None, help="실제 KcELECTRA 모델 경로. 없으면 placeholder 사전 기반 사용")
     ap.add_argument("--limit", type=int, default=None, help="테스트용 상위 N개만 처리")
     ap.add_argument("--col_name", default="음식점명")

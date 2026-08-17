@@ -1,0 +1,8 @@
+venv/
+data/raw/
+models/
+__pycache__/
+*.pyc
+*.zip
+.vscode/
+data/processed/embeddings/

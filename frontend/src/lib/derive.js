@@ -1,6 +1,5 @@
-/* 도메인 파생 로직 — 태그/키워드 기반 알레르기·제철 매칭, 찜 기반 추천, 검색.
-   백엔드 감정분석/트렌드태그 모델이 준비되면 이 함수들을 API 호출로 대체 가능. */
-import { SEASONAL } from '../data/seasonal.js'
+/* 도메인 파생 로직 — 태그/키워드 기반 알레르기·제철 매칭, 찜 기반 추천, 검색. */
+import { SEASONAL, DISH_TO_ITEM } from '../data/seasonal.js'
 
 export function haystack(r) {
   return `${(r.tags || []).join(' ')} ${r.key || ''} ${r.name || ''} ${r.desc || ''}`
@@ -19,22 +18,31 @@ export function allergyInfo(r) {
   return { groups, items }
 }
 
-/* 제철 식재료 연결 */
-const SEASON_MAP = [
-  { kw: ['전복'], id: 'jeonbok', label: '완도 전복 · 제철 (가을~겨울)' },
-  { kw: ['굴'], id: 'gul', label: '고흥·여수 굴 · 제철 (11~2월)' },
-  { kw: ['갈치'], id: 'galchi', label: '여수 갈치 · 가을~겨울' },
-  { kw: ['오징어', '물오징어'], id: 'mulojingeo', label: '여수 물오징어 · 가을철' },
-]
-export function seasonalFor(r) {
+/* 제철 시세 연결(실데이터) — 식당 메뉴/태그에서 '지금 제철'인 시세품목을 찾는다.
+   ingredient_map(메뉴 키워드 → 시세품목)으로 매칭. 광주 사용자는 광주 시세 우선. */
+export function seasonalFor(r, loc = {}) {
   const hs = haystack(r)
-  for (const m of SEASON_MAP) {
-    if (m.kw.some((k) => hs.includes(k))) {
-      const s = SEASONAL.find((x) => x.id === m.id)
-      return { id: m.id, label: m.label, delta: s ? s.delta : 0 }
-    }
+  const month = new Date().getMonth() + 1
+  const isGwangju = loc.region === '광주'
+  // 이 식당 메뉴에 등장하는 시세품목 후보
+  const items = new Set()
+  for (const [kw, item] of Object.entries(DISH_TO_ITEM)) {
+    if (hs.includes(kw)) items.add(item)
   }
-  return null
+  if (!items.size) return null
+
+  // 후보 중 지금 제철인 시세 레코드(광주 우선) 선택
+  const cand = SEASONAL.filter(
+    (s) => items.has(s.item) && s.peak_months.includes(month) && (isGwangju || s.region === '전국'),
+  ).sort((a, b) => {
+    const reg = (a.region === '광주' ? 0 : 1) - (b.region === '광주' ? 0 : 1)
+    if (reg !== 0 && isGwangju) return reg
+    return a.vsAvgPct - b.vsAvgPct
+  })
+  if (!cand.length) return null
+  const s = cand[0]
+  const tag = s.region === '광주' ? '광주' : '전국'
+  return { id: s.id, label: `${tag} ${s.item} · 지금 제철`, delta: s.vsAvgPct, level: s.level }
 }
 
 /* 찜 기반 취향 추천 — 찜한 식당들의 태그·대표키워드·지역 빈도로 유사도 랭킹 */

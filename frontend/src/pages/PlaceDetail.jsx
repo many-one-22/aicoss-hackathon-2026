@@ -103,7 +103,7 @@ export default function PlaceDetail() {
             <span className="text-[12px] text-muted">지금이 가장 맛있고 저렴할 때예요</span>
           </div>
           <span className={`shrink-0 text-[14px] font-bold ${season.delta > 0 ? 'text-terra' : 'text-seasonink'}`}>
-            평년比 {Math.abs(season.delta)}%{season.delta > 0 ? '↑' : '↓'}
+            연평균比 {Math.abs(season.delta)}%{season.delta > 0 ? '↑' : '↓'}
           </span>
         </Link>
       )}

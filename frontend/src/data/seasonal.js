@@ -1,7 +1,9 @@
-/* 제철 특산물 (KAMIS 시세 연동 가정). delta = 평년 대비 %(음수=저렴/구매적기) */
-export const SEASONAL = [
-  { id: 'jeonbok', name: '완도 전복', short: '전복', origin: '완도', season: '가을~겨울 성수기', delta: -8, flag: '구매 적기' },
-  { id: 'gul', name: '고흥·여수 굴', short: '굴', origin: '고흥·여수', season: '11~2월', delta: -5 },
-  { id: 'galchi', name: '여수 갈치', short: '갈치', origin: '여수', season: '가을~겨울', delta: 6 },
-  { id: 'mulojingeo', name: '여수 물오징어', short: '오징어', origin: '여수', season: '가을철', delta: 0 },
-]
+/* 실데이터 — namdo.sqlite seasonality 테이블(광주 14 + 전국 92).
+   필드: id, item, region('광주'|'전국'), unit, current, avg12, level('저렴'|'평균'|'비쌈'),
+   vsAvgPct(현재가 vs 12개월 평균 %), wowPct(전월 대비 %), peak_months[], trend[[ym,price]...]
+   모든 값은 KAMIS 실측 기반(합성값 아님). */
+import SEASONAL_REAL from './seasonal.real.json'
+import INGREDIENT_MAP from './ingredient_map.real.json'
+
+export const SEASONAL = SEASONAL_REAL
+export const DISH_TO_ITEM = INGREDIENT_MAP // 메뉴 키워드 → 시세품목명
