@@ -130,6 +130,8 @@ export async function getIngredient(id) {
     wowPct: s.wowPct,
     dishes: dishesForItem(s.item),
     trend: s.trend, // [[ 'YYYY-MM', price ], ...]
+    forecast: s.forecast ?? null, // [{ym,yhat,lo,hi}] Prophet 6개월 예측 (있는 재료만)
+    forecastMape: s.forecastMape ?? null, // 백테스트 오차율(%) — 정확도 표시용
     inSeason: s.peak_months.includes(new Date().getMonth() + 1),
   }
 }
