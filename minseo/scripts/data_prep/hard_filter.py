@@ -17,8 +17,8 @@ except Exception:
 
 DB = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
 
-# 응답에 실을 컬럼(임베딩 랭커·프론트 카드용)
-COLS = ["place", "region_group", "cuisine_type", "dish_type", "ingredient_category",
+# 응답에 실을 컬럼(임베딩 랭커·프론트 카드용). rowid = 임베딩 후보 매칭 키
+COLS = ["rowid", "place", "region_group", "cuisine_type", "dish_type", "ingredient_category",
         "local_score", "is_chain", "address", "lat", "lng", "menu", "phone", "parking", "hours"]
 
 # 알레르기 제외 키워드 (생물분류 기반 손수사전)

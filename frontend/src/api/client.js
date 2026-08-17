@@ -1,14 +1,31 @@
-/* Mock API 클라이언트
-   ─ 모든 화면은 이 모듈만 호출한다. 백엔드가 준비되면 각 함수 내부를
-     fetch('/api/...') 로 바꾸기만 하면 UI 변경 없이 실 API 연동이 된다.
-   ─ 지금은 src/data 의 로컬 데이터를 Promise 로 감싸 async 흐름을 흉내낸다. */
+/* API 클라이언트 — 모든 화면은 이 모듈만 호출한다.
+   데이터는 namdo.sqlite 에서 추출한 실데이터 JSON(src/data/*.real.json)을 사용한다.
+   위치는 브라우저 Geolocation 좌표를 광주·전남 도시로 오프라인 매핑(geo.js)해 얻고,
+   식당/시장/추천/제철을 모두 '현재 위치' 기준으로 필터·정렬한다. */
 import { RESTAURANTS } from '../data/restaurants.js'
-import { SEASONAL } from '../data/seasonal.js'
+import { SEASONAL, DISH_TO_ITEM } from '../data/seasonal.js'
 import { MARKETS } from '../data/markets.js'
-import { INGREDIENTS } from '../data/ingredients.js'
+import { CITIES, nearestCity, cityByName, distanceKm } from '../data/geo.js'
 import { allergyInfo, seasonalFor, searchRestaurants } from '../lib/derive.js'
+import { retrieveLocal, enrich } from '../lib/chatbot.js'
 
-const delay = (ms = 220) => new Promise((res) => setTimeout(res, ms))
+const delay = (ms = 200) => new Promise((res) => setTimeout(res, ms))
+const LEVEL_ORDER = { 저렴: 0, 평균: 1, 비쌈: 2 }
+
+/* loc 에서 정렬 기준 좌표를 얻는다(없으면 null). */
+function originOf(loc = {}) {
+  if (loc.lat != null && loc.lng != null) return { lat: loc.lat, lng: loc.lng }
+  const c = loc.city ? cityByName(loc.city) : loc.region === '광주' ? cityByName('광주') : null
+  return c ? { lat: c.lat, lng: c.lng } : null
+}
+/* 좌표가 있는 항목을 사용자와 가까운 순으로 정렬(사본 반환). */
+function byDistance(list, origin) {
+  if (!origin) return list.slice()
+  return list
+    .map((x) => ({ x, d: x.lat != null && x.lng != null ? distanceKm(origin, x) : Infinity }))
+    .sort((a, b) => a.d - b.d)
+    .map((o) => ({ ...o.x, _distKm: Math.round(o.d) }))
+}
 
 export async function getRestaurants() {
   await delay()
@@ -20,70 +37,157 @@ export async function getRestaurant(id) {
   return RESTAURANTS.find((r) => r.id === Number(id)) || null
 }
 
-export async function getSeasonal() {
-  await delay(120)
-  return SEASONAL
-}
-
-export async function getMarkets() {
+/* 현재 위치에서 가까운 순 식당(같은 권역 우선). 각 항목에 _distKm 포함. */
+export async function getRestaurantsNear(loc = {}, { region = true } = {}) {
   await delay(160)
-  return MARKETS
+  const origin = originOf(loc)
+  const reg = typeof loc === 'string' ? null : loc.region
+  const pool = region && reg ? RESTAURANTS.filter((r) => r.region === reg) : RESTAURANTS
+  return byDistance(pool.length ? pool : RESTAURANTS, origin)
 }
 
-export async function getIngredient(id) {
-  await delay(120)
-  return INGREDIENTS[id] || INGREDIENTS.jeonbok
+/* ── 위치 자동 감지 ── */
+function locFromCity(c, auto = true) {
+  return { city: c.name, region: c.region, lat: c.lat, lng: c.lng, label: `${c.name} · ${auto ? '자동감지' : '선택'}` }
 }
-
-/* 위치 자동 감지 — 실제로는 브라우저 Geolocation + 역지오코딩.
-   데모에서는 권한 여부와 무관하게 광역 도시명을 반환한다. */
 export async function detectLocation() {
-  const fallback = { city: '여수시', label: '여수시 · 자동감지' }
+  const fallback = locFromCity(cityByName('광주'))
   if (!('geolocation' in navigator)) return fallback
   try {
-    await new Promise((resolve, reject) =>
-      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 2500, maximumAge: 600000 }),
+    const pos = await new Promise((resolve, reject) =>
+      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000, maximumAge: 600000 }),
     )
-    // 좌표→도시 역지오코딩 API 자리(추후 연동). 지금은 데모 도시 유지.
-    return fallback
+    const { latitude, longitude } = pos.coords
+    const c = nearestCity(latitude, longitude)
+    return { city: c.name, region: c.region, lat: latitude, lng: longitude, label: `${c.name} · 자동감지` }
   } catch {
     return fallback
   }
 }
+export function locationChoices() {
+  return CITIES.map((c) => c.name)
+}
+export function locationByName(name) {
+  const c = cityByName(name)
+  return c ? locFromCity(c, false) : null
+}
 
-/* 오늘의 추천 — 위치/기록 기반. 데모에서는 위치 도시의 대표 식당(전복 우선) */
-export async function getTodayRecommendation(city = '여수시') {
+/* ── 제철 시세 (실데이터) ──
+   현재 월에 성수기(peak_months)인 품목만. 광주 사용자는 광주 시세 우선 + 전국 보완.
+   정렬: 광주 지역 우선 → 구매적기(저렴) → 평년比 낮은 순. */
+export async function getSeasonal(ctx = {}) {
+  await delay(120)
+  const month = ctx.month || new Date().getMonth() + 1
+  const isGwangju = ctx.region === '광주'
+  const inMonth = (s) => s.peak_months.includes(month)
+
+  let list
+  if (isGwangju) {
+    const gj = SEASONAL.filter((s) => s.region === '광주' && inMonth(s))
+    const names = new Set(gj.map((s) => s.item))
+    const nat = SEASONAL.filter((s) => s.region === '전국' && inMonth(s) && !names.has(s.item))
+    list = [...gj, ...nat]
+  } else {
+    list = SEASONAL.filter((s) => s.region === '전국' && inMonth(s))
+  }
+  return list
+    .map((s) => ({ ...s, month, _regionRank: s.region === '광주' ? 0 : 1 }))
+    .sort((a, b) => {
+      if (a._regionRank !== b._regionRank) return a._regionRank - b._regionRank
+      const lv = (LEVEL_ORDER[a.level] ?? 1) - (LEVEL_ORDER[b.level] ?? 1)
+      if (lv !== 0) return lv
+      return a.vsAvgPct - b.vsAvgPct
+    })
+}
+
+export async function getMarkets(loc) {
+  await delay(160)
+  return loc ? byDistance(MARKETS, originOf(loc)) : MARKETS
+}
+
+/* 시세품목이 들어가는 향토음식(메뉴 키워드) — ingredient_map 역방향. */
+function dishesForItem(item) {
+  const ks = Object.entries(DISH_TO_ITEM).filter(([, v]) => v === item).map(([k]) => k)
+  return [...new Set([item, ...ks])].slice(0, 6)
+}
+
+/* ── 산지·시세 상세 (실데이터 12개월 추이) ── */
+export async function getIngredient(id) {
+  await delay(120)
+  const s = SEASONAL.find((x) => x.id === id)
+  if (!s) return null
+  const monthNames = { 1: '1월', 2: '2월', 3: '3월', 4: '4월', 5: '5월', 6: '6월', 7: '7월', 8: '8월', 9: '9월', 10: '10월', 11: '11월', 12: '12월' }
+  return {
+    id: s.id,
+    name: s.item,
+    region: s.region,
+    unit: s.unit,
+    level: s.level,
+    season: s.peak_months.map((m) => monthNames[m]).join('·'),
+    current: s.current,
+    avg: s.avg12,
+    vsAvgPct: s.vsAvgPct,
+    wowPct: s.wowPct,
+    dishes: dishesForItem(s.item),
+    trend: s.trend, // [[ 'YYYY-MM', price ], ...]
+    forecast: s.forecast ?? null, // [{ym,yhat,lo,hi}] Prophet 6개월 예측 (있는 재료만)
+    forecastMape: s.forecastMape ?? null, // 백테스트 오차율(%) — 정확도 표시용
+    inSeason: s.peak_months.includes(new Date().getMonth() + 1),
+  }
+}
+
+/* ── 오늘의 추천 — 현재 위치 근처 향토색 식당 중 매번 랜덤 ──
+   새로고침(재호출)할 때마다 '가까운 후보군'에서 무작위로 골라 그때그때 바뀐다. */
+export async function getTodayRecommendation(loc = {}) {
   await delay(180)
-  const pool = RESTAURANTS.filter((r) => r.city === city)
+  const origin = originOf(loc)
+  const region = typeof loc === 'string' ? null : loc.region
+  const pool = region ? RESTAURANTS.filter((r) => r.region === region) : RESTAURANTS
   const base = pool.length ? pool : RESTAURANTS
-  const pick = base.find((r) => /전복/.test(`${r.tags.join('')}${r.key}`)) || base[0]
-  return { restaurant: pick, allergy: allergyInfo(pick), seasonal: seasonalFor(pick) }
+  const near = byDistance(base, origin).slice(0, 12) // 사용자와 가장 가까운 12곳
+  const local = near.filter((r) => (r.local_score || 0) >= 1) // 그 안에서 향토색 있는 곳 우선
+  const cands = local.length >= 4 ? local : near
+  const pick = cands[Math.floor(Math.random() * cands.length)] || base[0]
+  return { restaurant: pick, allergy: allergyInfo(pick), seasonal: seasonalFor(pick, loc) }
 }
 
-export async function search(query) {
-  await delay(240)
-  return searchRestaurants(query, RESTAURANTS)
+export async function search(query, loc) {
+  await delay(220)
+  const hits = searchRestaurants(query, RESTAURANTS)
+  return loc ? byDistance(hits, originOf(loc)) : hits
 }
 
-/* 챗봇 응답 (RAG 흉내) — 질의에서 지역/메뉴 토큰을 뽑아 매칭 식당 카드를 반환 */
-export async function chatReply(text, city = '여수시') {
-  await delay(650)
-  const hits = searchRestaurants(text, RESTAURANTS)
-  if (hits.length) {
-    const r = hits[0]
+/* ── 챗봇 — minseo AI 추천 엔진(retrieve+recommend) 이식본 ──
+   자연어 → 필터 파싱 → 하드필터 → 랭킹(질의·향토색·근접) → 시세·시장 보강. */
+export async function chatReply(text, loc = {}) {
+  await delay(500)
+  const cityLabel = loc.city || '현재 위치'
+  const { filters, fallback, results } = retrieveLocal(text, loc, 4)
+
+  if (!results.length) {
     return {
       messages: [
-        { who: 'bot', text: `${r.city}에서 조건에 맞는 곳으로 ${hits.length}곳을 찾았어요. 대표로 한 곳 보여드릴게요.` },
-        { who: 'card', restaurant: r },
-        ...(hits.length > 1 ? [{ who: 'bot', text: '“비슷한 3곳”을 눌러 맞춤 추천으로 이어갈 수 있어요.' }] : []),
+        { who: 'bot', text: `아직 ${cityLabel} 근처에서 딱 맞는 곳을 못 찾았어요. 메뉴(예: 꼬막·게장·백반)나 상황(예: 가족·해장)을 함께 말해주시면 더 정확해집니다.` },
       ],
-      hits,
+      hits: [],
     }
   }
-  return {
-    messages: [
-      { who: 'bot', text: '아직 딱 맞는 향토음식점을 못 찾았어요. 지역(예: 여수·보성)이나 메뉴(예: 꼬막·게장)를 함께 말해주시면 더 정확해집니다.' },
-    ],
-    hits: [],
-  }
+
+  // 인식한 조건 요약(재료/음식유형/건강)
+  const chips = [...filters.ingredients, ...filters.dishType, ...filters.health]
+  const cond = chips.length ? `‘${chips.slice(0, 3).join(', ')}’ ` : ''
+  const top = results[0] // 질문당 딱 한 곳만 추천
+  const bits = enrich(top, loc)
+
+  const messages = [
+    {
+      who: 'bot',
+      text: fallback
+        ? `${cityLabel} 근처엔 딱 맞는 곳이 적어 조건을 넓혀 골랐어요. 가장 가까운 이곳을 추천해요.`
+        : `${cityLabel} 근처 ${cond}향토음식점으로 이곳을 추천해요.`,
+    },
+    { who: 'card', restaurant: top },
+  ]
+  if (bits.length) messages.push({ who: 'bot', text: `👍 ${top.name} — ${bits.join(' · ')}` })
+  return { messages, hits: results }
 }

@@ -11,20 +11,22 @@ import { useDragScroll } from '../hooks/useDragScroll.js'
 export default function Home() {
   const { ids } = useFavorites()
   const seasonalDrag = useDragScroll()
-  const [loc, setLoc] = useState({ city: '여수시', label: '여수시 · 자동감지' })
+  const [loc, setLoc] = useState({ city: '광주', region: '광주', label: '광주 · 자동감지' })
   const [today, setToday] = useState(null)
   const [seasonal, setSeasonal] = useState([])
   const [all, setAll] = useState([])
+  const month = new Date().getMonth() + 1
 
   useEffect(() => {
     api.detectLocation().then(setLoc)
-    api.getSeasonal().then(setSeasonal)
     api.getRestaurants().then(setAll)
   }, [])
 
   useEffect(() => {
-    if (loc.city) api.getTodayRecommendation(loc.city).then(setToday)
-  }, [loc.city])
+    if (!loc.city) return
+    api.getTodayRecommendation(loc).then(setToday)
+    api.getSeasonal(loc).then(setSeasonal)
+  }, [loc.city, loc.region, loc.lat, loc.lng])
 
   const favRestaurants = all.filter((r) => ids.includes(r.id))
   const recos = recommendByFavorites(favRestaurants, all, 3)
@@ -114,8 +116,8 @@ export default function Home() {
       {/* 이번 주 제철 (드래그 가로 스크롤) */}
       <div className="flex items-end justify-between px-5 pb-1.5 pt-5">
         <div>
-          <span className="text-[12px] text-muted-soft">제철, 잘 모르셔도 괜찮아요 · 밀어서 더 보기</span>
-          <h2 className="mt-0.5 text-[19px] font-extrabold text-ink">이번 주 제철</h2>
+          <span className="text-[12px] text-muted-soft">{loc.city} 기준 · 밀어서 더 보기</span>
+          <h2 className="mt-0.5 text-[19px] font-extrabold text-ink">{month}월 지금 제철</h2>
         </div>
         <Link to="/seasonal" className="shrink-0 text-[12px] font-semibold text-terra">
           전체 보기 →
@@ -129,17 +131,17 @@ export default function Home() {
         {seasonal.map((s) => (
           <Link key={s.id} to={`/ingredient/${s.id}`} className="w-[150px] shrink-0">
             <div
-              className="flex h-24 items-center justify-center rounded-xl text-[11px] text-[#7C7466]"
+              className="flex h-24 items-center justify-center rounded-xl text-[15px] font-bold text-[#5C5344]"
               style={{ background: 'repeating-linear-gradient(45deg,#D8CFBE 0 12px,#CFC5B2 12px 24px)' }}
             >
-              {s.short}
+              {s.item}
             </div>
-            <b className="mt-2 block text-[14px] font-bold text-ink">{s.name}</b>
+            <b className="mt-2 block text-[14px] font-bold text-ink">{s.item}</b>
             <span className="text-[12px] text-muted">
-              {s.origin} · {s.delta < 0 ? '지금 제철' : s.delta > 0 ? `평년比 +${s.delta}%` : '평년 수준'}
+              {s.region} · {s.level === '저렴' ? '지금 저렴' : s.vsAvgPct < 0 ? `연평균比 ${Math.abs(s.vsAvgPct)}%↓` : s.vsAvgPct > 0 ? `연평균比 ${s.vsAvgPct}%↑` : '연평균 수준'}
             </span>
             <span className="mt-1 flex items-center gap-0.5 text-[12px] font-bold text-terra">
-              여기 가볼래? <ChevronRight size={13} />
+              시세 보기 <ChevronRight size={13} />
             </span>
           </Link>
         ))}

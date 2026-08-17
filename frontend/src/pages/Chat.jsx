@@ -4,21 +4,25 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, Plus, AlertTriangle } from 'lucide-react'
 import * as api from '../api/client.js'
 import { allergyInfo } from '../lib/derive.js'
-import PlaceholderImage from '../components/PlaceholderImage.jsx'
 
-const GREETING = { who: 'bot', text: '지금 여수 계시죠? 무엇을 도와드릴까요?' }
-const SUGGESTIONS = [
-  { label: '가족 식사', prompt: '가족이랑 먹기 좋은 국물요리 있어?' },
-  { label: '혼밥', prompt: '혼자 가기 좋은 곳 알려줘' },
-  { label: '술 안주', prompt: '술 한잔하기 좋은 안주 맛집' },
-  { label: '해장', prompt: '해장하기 좋은 국밥집' },
-]
+const greetingFor = (loc) => ({
+  who: 'bot',
+  text: loc ? `지금 ${loc.city} 계시죠? 무엇을 도와드릴까요?` : '무엇을 도와드릴까요?',
+})
 
 export default function Chat() {
-  const [messages, setMessages] = useState([GREETING])
+  const [loc, setLoc] = useState(null)
+  const [messages, setMessages] = useState([greetingFor(null)])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
   const scrollRef = useRef(null)
+
+  useEffect(() => {
+    api.detectLocation().then((l) => {
+      setLoc(l)
+      setMessages((m) => (m.length === 1 && m[0].who === 'bot' ? [greetingFor(l)] : m))
+    })
+  }, [])
 
   useEffect(() => {
     const el = scrollRef.current
@@ -31,13 +35,13 @@ export default function Chat() {
     setInput('')
     setBusy(true)
     setMessages((m) => [...m, { who: 'user', text: q }, { who: 'typing' }])
-    const res = await api.chatReply(q)
+    const res = await api.chatReply(q, loc || {})
     setMessages((m) => [...m.filter((x) => x.who !== 'typing'), ...res.messages])
     setBusy(false)
   }
 
   function reset() {
-    setMessages([GREETING])
+    setMessages([greetingFor(loc)])
     setInput('')
   }
 
@@ -61,18 +65,7 @@ export default function Chat() {
       </div>
 
       {/* 입력 (하단 탭바 위) */}
-      <div className="fixed bottom-16 left-1/2 z-20 w-full max-w-phone -translate-x-1/2 border-t border-line bg-cream px-4 pb-3 pt-3">
-        <div className="no-scrollbar mb-2 flex gap-2 overflow-x-auto">
-          {SUGGESTIONS.map((s) => (
-            <button
-              key={s.label}
-              onClick={() => send(s.prompt)}
-              className="shrink-0 rounded-full border border-line bg-white px-3 py-1.5 text-[13px] text-ink/80"
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+      <div className="fixed bottom-16 left-1/2 z-20 w-full max-w-phone -translate-x-1/2 bg-cream px-4 pb-3 pt-3">
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -113,12 +106,13 @@ function Bubble({ m }) {
     const allergy = allergyInfo(r)
     return (
       <div className="mr-auto w-[88%] overflow-hidden rounded-2xl border border-line bg-white shadow-card">
-        <PlaceholderImage className="h-[120px] w-full text-[12px]" />
         <div className="flex flex-col gap-1.5 p-3.5">
           <b className="text-[18px] font-extrabold text-ink">{r.name}</b>
           <span className="text-[13px] text-muted">
-            {r.city} · {r.key} · {(r.tags || [])[0]}
+            {r.city} · {r.key}
+            {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
           </span>
+          {r.desc && <span className="line-clamp-2 text-[12px] text-ink/70">{r.desc}</span>}
           {allergy.groups.length > 0 && (
             <span className="flex items-center gap-1 text-[12px] font-semibold text-allergyink">
               <AlertTriangle size={12} /> {allergy.groups.join(', ')} 포함
@@ -137,9 +131,6 @@ function Bubble({ m }) {
               길찾기
             </a>
           </div>
-        </div>
-        <div className="bg-cream px-3.5 py-2 text-[11px] text-muted-soft">
-          근거: 음식 영양·알레르기 DB · 이용 기록 기반 추천
         </div>
       </div>
     )
