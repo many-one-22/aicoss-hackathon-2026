@@ -119,7 +119,7 @@ function Bubble({ m }) {
             </span>
           )}
           <div className="mt-1 flex gap-2">
-            <Link to={`/place/${r.id}`} className="flex-1 rounded-lg bg-[#D5EBDE] py-2.5 text-center text-[13px] font-extrabold text-green">
+            <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="flex-1 rounded-lg bg-[#D5EBDE] py-2.5 text-center text-[13px] font-extrabold text-green">
               상세 보기
             </Link>
             <a

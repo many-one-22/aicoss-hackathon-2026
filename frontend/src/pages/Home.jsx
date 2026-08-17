@@ -1,5 +1,5 @@
 /* ① 모바일 홈 — 위치 자동감지 · 오늘의 추천 · 찜 기반 추천 · 이번 주 제철(가로 스크롤) */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Heart, ChevronRight, AlertTriangle } from 'lucide-react';
 import * as api from '../api/client.js';
@@ -32,8 +32,9 @@ export default function Home() {
     api.getSeasonal(loc).then(setSeasonal);
   }, [loc.city, loc.region, loc.lat, loc.lng]);
 
-  const favRestaurants = all.filter((r) => ids.includes(r.id));
-  const recos = recommendByFavorites(favRestaurants, all, 3);
+  const favRestaurants = useMemo(() => all.filter((r) => ids.includes(r.id)), [all, ids]);
+  // 로딩(데이터/찜 변경)마다 한 번 랜덤 추출 — 재렌더로 깜빡이지 않게 메모이즈
+  const recos = useMemo(() => recommendByFavorites(favRestaurants, all, 3), [favRestaurants, all]);
 
   return (
     <div>

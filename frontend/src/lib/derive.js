@@ -77,7 +77,23 @@ export function recommendByFavorites(favRestaurants, allRestaurants, limit = 6) 
     })
     .filter((x) => x.score > 0)
   scored.sort((a, b) => b.score - a.score)
-  return scored.slice(0, limit)
+  // 관련도 상위 후보 풀에서 점수를 가중치로 삼아 무작위 추출 → 로딩할 때마다 다른 추천이 뜬다
+  const pool = scored.slice(0, Math.max(limit * 4, 12))
+  return weightedSample(pool, limit)
+}
+
+/* 점수를 가중치로 삼아 서로 다른 k개를 무작위 추출(높은 점수일수록 더 자주 뽑힘) */
+function weightedSample(items, k) {
+  const pool = items.slice()
+  const out = []
+  while (pool.length && out.length < k) {
+    const total = pool.reduce((s, x) => s + x.score, 0)
+    let r = Math.random() * total
+    let idx = 0
+    while (idx < pool.length - 1 && (r -= pool[idx].score) > 0) idx++
+    out.push(pool.splice(idx, 1)[0])
+  }
+  return out
 }
 
 /* 검색 */
