@@ -6,7 +6,7 @@ export default {
       colors: {
         // 브랜드 (프롬프트 지정): 딥그린 / 오렌지·브라운 / 크림 아이보리
         green: { DEFAULT: '#1E4D3A', dark: '#163A2C', 900: '#102A20' },
-        terra: { DEFAULT: '#C85227', dark: '#A9401C', tint: '#FAEDE6' },
+        terra: { DEFAULT: '#F2993E', dark: '#D97F28', tint: '#FDF0E1' },
         cream: '#FAF7F2',
         ink: '#1C1F1D',
         muted: { DEFAULT: '#6B6F6A', soft: '#8A8478' },

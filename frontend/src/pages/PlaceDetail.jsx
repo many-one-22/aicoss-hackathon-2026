@@ -1,27 +1,33 @@
 /* ② 모바일 장소상세 — 식당 ID 기반 동적 렌더 · 이름 옆 하트(찜) · 길찾기/전통시장/찜 액션 */
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom'
 import { ChevronLeft, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import * as api from '../api/client.js'
 import { allergyInfo, seasonalFor } from '../lib/derive.js'
 import HeartButton from '../components/HeartButton.jsx'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
 import ChatFab from '../components/ChatFab.jsx'
+import { recordVisit } from '../store/visits.js'
 
 export default function PlaceDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [r, setR] = useState(null)
+  const location = useLocation()
+  // 챗봇(KoSBERT 백엔드) 카드에서 넘어온 식당 객체 — 번들에 없는 식당도 이걸로 바로 렌더
+  const passed = location.state?.restaurant
+  const [r, setR] = useState(passed || null)
   const [nearby, setNearby] = useState([])
 
   useEffect(() => {
     let live = true
-    api.getRestaurant(id).then((res) => live && setR(res))
+    // 번들에 있으면 그 데이터로 갱신, 없으면(null) 넘어온 객체 유지
+    api.getRestaurant(id).then((res) => live && res && setR(res))
     return () => (live = false)
   }, [id])
 
   useEffect(() => {
     if (!r) return
+    recordVisit(r) // 방문 기록(추천 취향 신호)
     api.getRestaurants().then((all) =>
       setNearby(all.filter((x) => x.city === r.city && x.id !== r.id).slice(0, 2)),
     )
@@ -107,7 +113,7 @@ export default function PlaceDetail() {
           href={mapUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 rounded-xl bg-terra py-3.5 text-center text-[15px] font-bold text-white active:bg-terra-dark"
+          className="flex-1 rounded-xl bg-[#D5EBDE] py-3.5 text-center text-[15px] font-extrabold text-green active:bg-[#C2E0D0]"
         >
           길찾기
         </a>

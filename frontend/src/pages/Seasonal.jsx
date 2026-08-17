@@ -18,8 +18,8 @@ export default function Seasonal() {
 
   return (
     <div>
-      <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-white px-5">
-        <span className="text-[18px] font-bold text-ink">제철 시세</span>
+      <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-cream px-5">
+        <span className="font-serif text-[20px] font-black text-green">제철 시세</span>
         <span className="ml-auto text-[12px] text-muted">KAMIS 실측 · 오늘 기준</span>
       </header>
 
@@ -47,7 +47,13 @@ export default function Seasonal() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <b className="truncate text-[16px] font-bold text-ink">{s.item}</b>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${buyNow ? 'bg-terra/10 text-terra' : 'bg-line/60 text-muted'}`}>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                    s.level === '저렴'
+                      ? 'bg-green/10 text-green'
+                      : s.level === '비쌈'
+                        ? 'bg-red-500/10 text-red-600'
+                        : 'bg-line/60 text-muted'
+                  }`}>
                     {s.level}
                   </span>
                 </div>

@@ -90,9 +90,9 @@ def live_recommend(req: RecommendRequest) -> dict:
     }
 
     cands = seeun_retrieve(query=req.context, filters=filters, top_n=req.top_k)
-    print(f"[디버그] query={req.context!r} filters={filters} -> 후보 {len(cands)}건", flush=True)
-    for c in cands[:3]:
-        print(f"[디버그]   place={c.get('place')!r} poi_id={c.get('poi_id')!r} rowid={c.get('rowid')!r} keys={list(c.keys())}", flush=True)
+    # print(f"[디버그] query={req.context!r} filters={filters} -> 후보 {len(cands)}건", flush=True)
+    # for c in cands[:3]:
+    #     print(f"[디버그]   place={c.get('place')!r} poi_id={c.get('poi_id')!r} rowid={c.get('rowid')!r} keys={list(c.keys())}", flush=True)
 
     fallback_used = False
     message = None

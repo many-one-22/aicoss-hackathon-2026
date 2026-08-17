@@ -1,5 +1,5 @@
 /* ⑦ 모바일 찜 목록 — 찜한 장소 리스트 + 취향 분석(태그 빈도) 기반 추천 3곳 */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, Heart } from 'lucide-react'
 import * as api from '../api/client.js'
@@ -14,9 +14,10 @@ export default function Favorites() {
     api.getRestaurants().then(setAll)
   }, [])
 
-  const favRestaurants = ids.map((id) => all.find((r) => r.id === id)).filter(Boolean)
-  const recos = recommendByFavorites(favRestaurants, all, 3)
-  const tags = topTags(favRestaurants, 3)
+  const favRestaurants = useMemo(() => ids.map((id) => all.find((r) => r.id === id)).filter(Boolean), [ids, all])
+  // 로딩(데이터/찜 변경)마다 한 번 랜덤 추출 — 재렌더로 깜빡이지 않게 메모이즈
+  const recos = useMemo(() => recommendByFavorites(favRestaurants, all, 3), [favRestaurants, all])
+  const tags = useMemo(() => topTags(favRestaurants, 3), [favRestaurants])
 
   return (
     <div>
