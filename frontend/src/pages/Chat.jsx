@@ -49,11 +49,11 @@ export default function Chat() {
 
   return (
     <div className="flex h-screen flex-col">
-      <header className="flex h-14 shrink-0 items-center border-b border-line bg-white px-4">
-        <Link to="/" aria-label="뒤로" className="grid h-9 w-9 place-items-center">
+      <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-1 border-b border-line bg-cream px-5">
+        <Link to="/" aria-label="뒤로" className="-ml-2 grid h-9 w-9 shrink-0 place-items-center text-ink">
           <ChevronLeft size={22} />
         </Link>
-        <span className="ml-1 text-[16px] font-bold text-ink">큐레이터 AI</span>
+        <span className="font-serif text-[20px] font-black text-green">큐레이터 AI</span>
         <button onClick={reset} className="ml-auto flex items-center gap-1 text-[13px] font-medium text-muted">
           <Plus size={15} /> 새 대화
         </button>
@@ -109,32 +109,36 @@ function Bubble({ m }) {
     const allergy = allergyInfo(r)
     return (
       <div className="mr-auto w-[88%] overflow-hidden rounded-2xl border border-line bg-white shadow-card">
-        <PlaceholderImage src={photoSrc} alt={r.name} className="h-[120px] w-full text-[12px]" />
-        <div className="flex flex-col gap-1.5 p-3.5">
-          <b className="text-[18px] font-extrabold text-ink">{r.name}</b>
-          <span className="text-[13px] text-muted">
-            {r.city} · {r.key}
-            {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
-          </span>
-          {r.desc && <span className="line-clamp-2 text-[12px] text-ink/70">{r.desc}</span>}
-          {allergy.groups.length > 0 && (
-            <span className="flex items-center gap-1 text-[12px] font-semibold text-allergyink">
-              <AlertTriangle size={12} /> {allergy.groups.join(', ')} 포함
+        {/* 카드 본체(이미지+정보) 전체가 상세로 이동하는 링크 */}
+        <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="block active:bg-cream">
+          <PlaceholderImage src={photoSrc} alt={r.name} className="h-[120px] w-full text-[12px]" />
+          <div className="flex flex-col gap-1.5 px-3.5 pt-3.5">
+            <b className="text-[18px] font-extrabold text-ink">{r.name}</b>
+            <span className="text-[13px] text-muted">
+              {r.city} · {r.key}
+              {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
             </span>
-          )}
-          <div className="mt-1 flex gap-2">
-            <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="flex-1 rounded-lg bg-[#D5EBDE] py-2.5 text-center text-[13px] font-extrabold text-green">
-              상세 보기
-            </Link>
-            <a
-              href={`https://map.naver.com/v5/search/${encodeURIComponent(r.addr || r.name)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 rounded-lg border-[1.5px] border-green py-2.5 text-center text-[13px] font-bold text-green"
-            >
-              길찾기
-            </a>
+            {r.desc && <span className="line-clamp-2 text-[12px] text-ink/70">{r.desc}</span>}
+            {allergy.groups.length > 0 && (
+              <span className="flex items-center gap-1 text-[12px] font-semibold text-allergyink">
+                <AlertTriangle size={12} /> {allergy.groups.join(', ')} 포함
+              </span>
+            )}
           </div>
+        </Link>
+        {/* 액션 버튼 (링크 밖 — a를 Link 안에 중첩하면 안 되므로 분리) */}
+        <div className="flex gap-2 p-3.5 pt-2.5">
+          <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="flex-1 rounded-lg bg-[#D5EBDE] py-2.5 text-center text-[13px] font-extrabold text-green">
+            상세 보기
+          </Link>
+          <a
+            href={`https://map.naver.com/v5/search/${encodeURIComponent(r.addr || r.name)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 rounded-lg border-[1.5px] border-green py-2.5 text-center text-[13px] font-bold text-green"
+          >
+            길찾기
+          </a>
         </div>
       </div>
     )
