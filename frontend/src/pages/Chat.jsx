@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'
 import { ChevronLeft, Plus, AlertTriangle } from 'lucide-react'
 import * as api from '../api/client.js'
 import { allergyInfo } from '../lib/derive.js'
+import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js'
+import PlaceholderImage from '../components/PlaceholderImage.jsx'
 
 const greetingFor = (loc) => ({
   who: 'bot',
@@ -89,6 +91,7 @@ export default function Chat() {
 }
 
 function Bubble({ m }) {
+  const photoSrc = useRestaurantPhoto(m.restaurant)
   if (m.who === 'user')
     return (
       <div className="ml-auto max-w-[80%] rounded-2xl rounded-br-md bg-green px-4 py-3 text-[15px] leading-relaxed text-white">
@@ -106,6 +109,7 @@ function Bubble({ m }) {
     const allergy = allergyInfo(r)
     return (
       <div className="mr-auto w-[88%] overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+        <PlaceholderImage src={photoSrc} alt={r.name} className="h-[120px] w-full text-[12px]" />
         <div className="flex flex-col gap-1.5 p-3.5">
           <b className="text-[18px] font-extrabold text-ink">{r.name}</b>
           <span className="text-[13px] text-muted">

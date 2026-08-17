@@ -5,8 +5,11 @@ import { MapPin, Heart, ChevronRight, AlertTriangle } from 'lucide-react'
 import * as api from '../api/client.js'
 import { useFavorites } from '../store/FavoritesContext.jsx'
 import { recommendByFavorites } from '../lib/derive.js'
+import { imageForIngredient } from '../lib/categoryImage.js'
 import RestaurantCard from '../components/RestaurantCard.jsx'
+import PlaceholderImage from '../components/PlaceholderImage.jsx'
 import { useDragScroll } from '../hooks/useDragScroll.js'
+import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js'
 
 export default function Home() {
   const { ids } = useFavorites()
@@ -27,6 +30,8 @@ export default function Home() {
     api.getTodayRecommendation(loc).then(setToday)
     api.getSeasonal(loc).then(setSeasonal)
   }, [loc.city, loc.region, loc.lat, loc.lng])
+
+  const heroPhoto = useRestaurantPhoto(today?.restaurant)
 
   const favRestaurants = all.filter((r) => ids.includes(r.id))
   const recos = recommendByFavorites(favRestaurants, all, 3)
@@ -67,14 +72,11 @@ export default function Home() {
           to={`/place/${today.restaurant.id}`}
           className="mx-5 mt-3 block overflow-hidden rounded-2xl border border-line bg-white shadow-card"
         >
-          <div
-            className="relative flex h-[150px] items-center justify-center text-[13px] text-[#7C7466]"
-            style={{ background: 'repeating-linear-gradient(45deg,#D8CFBE 0 12px,#CFC5B2 12px 24px)' }}
-          >
+          <div className="relative h-[150px]">
+            <PlaceholderImage src={heroPhoto} alt={today.restaurant.name} className="h-full w-full text-[13px]" />
             <span className="absolute left-3.5 top-3.5 rounded-full bg-terra px-2.5 py-1 text-[12px] font-bold text-white">
               오늘의 추천
             </span>
-            이미지
           </div>
           <div className="flex flex-col gap-1.5 px-4 pb-4 pt-3.5">
             <h3 className="text-[20px] font-extrabold text-ink">{today.restaurant.name}</h3>
@@ -130,12 +132,12 @@ export default function Home() {
       >
         {seasonal.map((s) => (
           <Link key={s.id} to={`/ingredient/${s.id}`} className="w-[150px] shrink-0">
-            <div
-              className="flex h-24 items-center justify-center rounded-xl text-[15px] font-bold text-[#5C5344]"
-              style={{ background: 'repeating-linear-gradient(45deg,#D8CFBE 0 12px,#CFC5B2 12px 24px)' }}
-            >
-              {s.item}
-            </div>
+            <PlaceholderImage
+              src={imageForIngredient(s.item)}
+              alt={s.item}
+              label={s.item}
+              className="h-24 w-full rounded-xl text-[11px]"
+            />
             <b className="mt-2 block text-[14px] font-bold text-ink">{s.item}</b>
             <span className="text-[12px] text-muted">
               {s.region} · {s.level === '저렴' ? '지금 저렴' : s.vsAvgPct < 0 ? `연평균比 ${Math.abs(s.vsAvgPct)}%↓` : s.vsAvgPct > 0 ? `연평균比 ${s.vsAvgPct}%↑` : '연평균 수준'}

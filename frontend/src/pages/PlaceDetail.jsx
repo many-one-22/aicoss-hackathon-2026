@@ -4,15 +4,22 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ChevronLeft, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import * as api from '../api/client.js'
 import { allergyInfo, seasonalFor } from '../lib/derive.js'
+import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js'
 import HeartButton from '../components/HeartButton.jsx'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
 import ChatFab from '../components/ChatFab.jsx'
+
+function NearbyThumb({ r }) {
+  const photoSrc = useRestaurantPhoto(r)
+  return <PlaceholderImage src={photoSrc} alt={r.name} className="h-[90px] w-full rounded-lg" />
+}
 
 export default function PlaceDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [r, setR] = useState(null)
   const [nearby, setNearby] = useState([])
+  const photoSrc = useRestaurantPhoto(r)
 
   useEffect(() => {
     let live = true
@@ -49,7 +56,7 @@ export default function PlaceDetail() {
 
       {/* 히어로 */}
       <div className="relative h-[260px]">
-        <PlaceholderImage className="h-full w-full text-[13px]" />
+        <PlaceholderImage src={photoSrc} alt={r.name} className="h-full w-full text-[13px]" />
         <span className="absolute bottom-4 left-4 rounded-full bg-terra px-2.5 py-1 text-[12px] font-bold text-white">
           오늘의 추천
         </span>
@@ -126,7 +133,7 @@ export default function PlaceDetail() {
           <div className="flex gap-2.5">
             {nearby.map((n) => (
               <Link key={n.id} to={`/place/${n.id}`} className="flex min-w-0 flex-1 flex-col gap-1">
-                <PlaceholderImage className="h-[90px] w-full rounded-lg" />
+                <NearbyThumb r={n} />
                 <b className="truncate text-[13px] font-bold text-ink">{n.name}</b>
                 <span className="text-[11px] text-muted">
                   {n.key} · {n.city}
