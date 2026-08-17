@@ -107,7 +107,7 @@ export default function PlaceDetail() {
           href={mapUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 rounded-xl bg-terra py-3.5 text-center text-[15px] font-bold text-white active:bg-terra-dark"
+          className="flex-1 rounded-xl bg-[#D5EBDE] py-3.5 text-center text-[15px] font-extrabold text-green active:bg-[#C2E0D0]"
         >
           길찾기
         </a>

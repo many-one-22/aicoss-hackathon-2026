@@ -2,11 +2,21 @@
    카테고리 칩: 전통시장 / 향토음식점. */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, MapPin } from 'lucide-react'
+import { Search, MapPin, Navigation } from 'lucide-react'
 import * as api from '../api/client.js'
 import RestaurantCard from '../components/RestaurantCard.jsx'
 
 const CATEGORIES = ['전통시장', '향토음식점']
+
+/* 클릭 시 네이버 지도에서 해당 시장 '장소 화면'을 연다.
+   (검색결과 + 출발/도착 버튼이 있는 그 페이지 — 사용자가 도착을 누르면 길찾기로 이어짐)
+   시장명 + 지역으로 검색해 다른 지역 동명 시장과 헷갈리지 않게 한다. */
+function openNaverPlace(target) {
+  const { name, sido, city } = target
+  const query = [name, sido, city].filter(Boolean).join(' ')
+  const url = `https://map.naver.com/p/search/${encodeURIComponent(query)}`
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
 
 export default function Market() {
   const [loc, setLoc] = useState(null)
@@ -65,7 +75,12 @@ export default function Market() {
         {cat === '향토음식점'
           ? shownRestaurants.map((r) => <RestaurantCard key={r.id} restaurant={r} />)
           : shownMarkets.map((m) => (
-              <div key={m.id} className="rounded-2xl border border-line bg-white p-3.5">
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => openNaverPlace(m)}
+                className="w-full rounded-2xl border border-line bg-white p-3.5 text-left active:bg-cream"
+              >
                 <div className="flex items-baseline gap-2">
                   <b className="block text-[16px] font-bold text-ink">{m.name}</b>
                   {m._distKm != null && <span className="text-[12px] font-semibold text-terra">{m._distKm}km</span>}
@@ -75,12 +90,15 @@ export default function Market() {
                   {m.stores ? ` · 점포 ${m.stores}` : ''}
                   {m.items?.length ? ` · ${m.items.slice(0, 2).join('·')}` : ''}
                 </span>
-                <div className="mt-2 flex flex-wrap gap-1.5">
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {m.parking && <Mk>주차 가능</Mk>}
                   {m.openCycle && <Mk>{m.openCycle === '매일' ? '상설' : `장날 ${m.openCycle}`}</Mk>}
                   {(m.items || []).some((it) => it.includes('수산물')) && <Mk accent>수산물</Mk>}
+                  <span className="ml-auto flex items-center gap-1 text-[12px] font-bold text-green">
+                    <Navigation size={13} /> 길찾기
+                  </span>
                 </div>
-              </div>
+              </button>
             ))}
         {(cat === '향토음식점' ? shownRestaurants : shownMarkets).length === 0 && (
           <div className="rounded-2xl border border-dashed border-line bg-cream px-4 py-6 text-center text-[13px] text-muted">
