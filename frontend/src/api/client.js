@@ -232,6 +232,11 @@ export async function search(query, loc) {
   await delay(220);
   const hits = searchRestaurants(query, RESTAURANTS);
   return loc ? byDistance(hits, originOf(loc)) : hits;
+  const res = await fetch('http://localhost:8000/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, region: loc?.region, top_k: 10 }),
+  });
 }
 
 /* ── 챗봇 — minseo AI 추천 엔진(retrieve+recommend) 이식본 ──

@@ -5,6 +5,7 @@ __pycache__/
 *.pyc
 *.zip
 .vscode/
-# ÀÓº£µù »êÃâ¹° (´ë¿ë·®, Ä¿¹Ô ±İÁö ? build_embeddings.py·Î »ı¼º)
+# ì„ë² ë”© ì‚°ì¶œë¬¼ (ëŒ€ìš©ëŸ‰, ì»¤ë°‹ ê¸ˆì§€ â€” build_embeddings.pyë¡œ ìƒì„±)
 data/processed/embeddings/
+# ì‹¤ìˆ˜ë¡œ ë“¤ì–´ê°„ ì¤‘ì²© ì €ì¥ì†Œ
 frontend/aicoss-hackathon-2026/

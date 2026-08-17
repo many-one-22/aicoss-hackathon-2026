@@ -18,8 +18,8 @@ export default function Seasonal() {
 
   return (
     <div>
-      <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-white px-5">
-        <span className="text-[18px] font-bold text-ink">제철 시세</span>
+      <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-cream px-5">
+        <span className="font-serif text-[20px] font-black text-green">제철 시세</span>
         <span className="ml-auto text-[12px] text-muted">KAMIS 실측 · 오늘 기준</span>
       </header>
 

@@ -2,7 +2,7 @@
    카테고리 칩: 전통시장 / 향토음식점. */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, MapPin, Navigation } from 'lucide-react'
+import { Navigation } from 'lucide-react'
 import * as api from '../api/client.js'
 import RestaurantCard from '../components/RestaurantCard.jsx'
 
@@ -34,18 +34,15 @@ export default function Market() {
 
   const shownMarkets = markets
   const shownRestaurants = restaurants.slice(0, 200)
-  const count = cat === '향토음식점' ? shownRestaurants.length : shownMarkets.length
-  const areaLabel = loc ? `${loc.city} 기준` : '현재 위치 기준'
 
   return (
     <div>
-      <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-white px-5">
-        <span className="text-[18px] font-bold text-ink">전통시장</span>
-        <Search size={20} className="ml-auto text-muted" />
+      <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-cream px-5">
+        <span className="font-serif text-[20px] font-black text-green">{cat}</span>
       </header>
 
       {/* 카테고리 칩 */}
-      <div className="no-scrollbar flex gap-2 overflow-x-auto bg-white px-5 pb-3 pt-1">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto bg-cream px-5 pb-2 pt-4">
         {CATEGORIES.map((c) => (
           <button
             key={c}
@@ -59,19 +56,8 @@ export default function Market() {
         ))}
       </div>
 
-      {/* 지도 + 카운트 */}
-      <div className="relative">
-        <div className="flex h-[150px] items-center justify-center bg-season text-[12px] text-muted-soft">
-          지도: {cat} 핀 · {areaLabel}
-        </div>
-        <span className="absolute left-5 top-3 flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[12px] font-semibold text-ink shadow-card">
-          <MapPin size={12} className="text-terra" fill="#C85227" />
-          {loc ? loc.city : '남도'} 근처 {count}곳
-        </span>
-      </div>
-
       {/* 리스트 */}
-      <div className="flex flex-col gap-2.5 px-5 py-4">
+      <div className="flex flex-col gap-2.5 px-5 pb-4 pt-2">
         {cat === '향토음식점'
           ? shownRestaurants.map((r) => <RestaurantCard key={r.id} restaurant={r} />)
           : shownMarkets.map((m) => (
