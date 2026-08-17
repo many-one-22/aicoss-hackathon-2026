@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""백엔드(seeun) 검색 진입점.
+"""백엔드 검색 진입점.
 retrieve(query, filters) → 랭킹된 식당 리스트. 보강(시세·영양·시장)은 백엔드가 별도 부착.
 구조화 filters로 하드필터 → query 있으면 임베딩(KoSBERT) 의미순 재정렬.
 
@@ -58,6 +58,27 @@ def _as_list(v):
     return v if isinstance(v, list) else [v]
 
 
+# 부정어 처리 — "전복 싫은데"처럼 재료 뒤에 부정어가 오면 그 재료를 결과에서 뺀다.
+# (KoSBERT 임베딩은 부정을 못 잡아 오히려 '전복'을 상위로 올리므로 명시적으로 제외한다.)
+_NEG_CUES = ("싫", "말고", "빼고", "제외", "별로", "아니", "못 먹", "못먹")
+_EXCLUDABLE = (
+    "전복", "꼬막", "조개", "굴", "홍합", "바지락", "소라", "골뱅이", "새우", "꽃게", "게장",
+    "낙지", "오징어", "문어", "주꾸미", "장어", "갈치", "고등어", "홍어", "매생이",
+    "삼겹", "돼지", "오리", "한우", "회",
+)
+
+
+def _parse_exclude(query):
+    """query에서 '재료 뒤 부정어'(전복 싫은데) 패턴을 찾아 제외할 재료 리스트를 반환."""
+    if not query:
+        return []
+    neg_pos = [query.find(c) for c in _NEG_CUES if c in query]
+    if not neg_pos:
+        return []
+    return [ing for ing in _EXCLUDABLE
+            if query.find(ing) >= 0 and any(np > query.find(ing) for np in neg_pos)]
+
+
 def retrieve(query=None, filters=None, top_n=10, exclude_chain=True):
     """구조화 filters로 후보를 좁히고, query 있으면 의미순 재정렬해 상위 top_n 반환.
     query 없으면 hard_filter 기본순(local_score DESC)."""
@@ -69,6 +90,11 @@ def retrieve(query=None, filters=None, top_n=10, exclude_chain=True):
         health=_as_list(f.get("health")),
         exclude_chain=exclude_chain,
     )
+    # 사용자가 싫다고 한 재료가 든 곳은 제외한다("전복 싫은데" → 전복집 제외)
+    exclude = _parse_exclude(query)
+    if exclude:
+        cands = [c for c in cands
+                 if not any(ing in ((c.get("menu") or "") + (c.get("place") or "")) for ing in exclude)]
     # situation 은 현재 검색조건으로 쓰지 않음(무시)
     if query:
         order = _get_ranker().rank(query, [c["rowid"] for c in cands], top_n)
