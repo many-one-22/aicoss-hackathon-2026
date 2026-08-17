@@ -20,7 +20,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from schemas import RecommendRequest, RecommendResponse, HealthResponse, RecommendItem, ChatRequest, ChatResponse
+from schemas import RecommendRequest, RecommendResponse, HealthResponse, RecommendItem, ChatRequest, ChatResponse, SearchRequest
 from mock_data import mock_recommend
 from db import get_connection
 from sentiment_lookup import get_trend_tags_only
@@ -155,6 +155,24 @@ def chat_endpoint(req: ChatRequest):
         status_code=501,
         detail="RAG 답변 생성 코드 미연결 — retrieve.py는 검색/랭킹만 지원. 답변 생성 함수 확인 필요.",
     )
+
+
+@app.post("/search", response_model=RecommendResponse)
+def search_endpoint(req: SearchRequest):
+    """자유 텍스트 검색 전용 엔드포인트. /recommend와 로직은 동일하되(구조화 필터 없이
+    query만 넘김), 프론트 client.js의 search() 함수 이름과 매칭되게 별도 경로로 노출."""
+    fake_req = RecommendRequest(region=req.region, context=req.query, top_k=req.top_k)
+    try:
+        if USE_MOCK:
+            result = mock_recommend(
+                ingredient=None, food_type=None, situation=None, health=None,
+                region=req.region, context=req.query, top_k=req.top_k,
+            )
+        else:
+            result = live_recommend(fake_req)
+    except NotImplementedError as e:
+        raise HTTPException(status_code=501, detail=str(e))
+    return result
 
 
 @app.post("/recommend", response_model=RecommendResponse)

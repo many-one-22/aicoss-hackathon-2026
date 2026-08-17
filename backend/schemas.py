@@ -66,3 +66,9 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     sources: List[str] = Field(default_factory=list, description="근거로 참조한 문서/식당 등 (근거 표기용)")
+
+
+class SearchRequest(BaseModel):
+    query: str = Field(..., description="자유 텍스트 검색어")
+    region: Optional[str] = Field(None, description="선택. 광주 5개구/기타 전남/순천·보성/여수권/나주·영암/담양·곡성/목포·신안/전체")
+    top_k: int = Field(10, ge=1, le=20)

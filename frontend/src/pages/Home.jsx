@@ -1,54 +1,69 @@
 /* ① 모바일 홈 — 위치 자동감지 · 오늘의 추천 · 찜 기반 추천 · 이번 주 제철(가로 스크롤) */
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { MapPin, Heart, ChevronRight, AlertTriangle } from 'lucide-react'
-import * as api from '../api/client.js'
-import { useFavorites } from '../store/FavoritesContext.jsx'
-import { recommendByFavorites } from '../lib/derive.js'
-import { imageForIngredient } from '../lib/categoryImage.js'
-import RestaurantCard from '../components/RestaurantCard.jsx'
-import PlaceholderImage from '../components/PlaceholderImage.jsx'
-import { useDragScroll } from '../hooks/useDragScroll.js'
-import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js'
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { MapPin, Heart, ChevronRight, AlertTriangle } from 'lucide-react';
+import * as api from '../api/client.js';
+import { useFavorites } from '../store/FavoritesContext.jsx';
+import { recommendByFavorites } from '../lib/derive.js';
+import { imageForIngredient } from '../lib/categoryImage.js';
+import RestaurantCard from '../components/RestaurantCard.jsx';
+import PlaceholderImage from '../components/PlaceholderImage.jsx';
+import { useDragScroll } from '../hooks/useDragScroll.js';
+import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js';
 
 export default function Home() {
-  const { ids } = useFavorites()
-  const seasonalDrag = useDragScroll()
-  const [loc, setLoc] = useState({ city: '광주', region: '광주', label: '광주 · 자동감지' })
-  const [today, setToday] = useState(null)
-  const [seasonal, setSeasonal] = useState([])
-  const [all, setAll] = useState([])
-  const month = new Date().getMonth() + 1
+  const { ids } = useFavorites();
+  const seasonalDrag = useDragScroll();
+  const [loc, setLoc] = useState({
+    city: '광주',
+    region: '광주',
+    label: '광주 · 자동감지',
+  });
+  const [today, setToday] = useState(null);
+  const [seasonal, setSeasonal] = useState([]);
+  const [all, setAll] = useState([]);
+  const month = new Date().getMonth() + 1;
 
   useEffect(() => {
-    api.detectLocation().then(setLoc)
-    api.getRestaurants().then(setAll)
-  }, [])
+    api.detectLocation().then(setLoc);
+    api.getRestaurants().then(setAll);
+  }, []);
 
   useEffect(() => {
-    if (!loc.city) return
-    api.getTodayRecommendation(loc).then(setToday)
-    api.getSeasonal(loc).then(setSeasonal)
-  }, [loc.city, loc.region, loc.lat, loc.lng])
+    if (!loc.city) return;
+    api.getTodayRecommendation(loc).then(setToday);
+    api.getSeasonal(loc).then(setSeasonal);
+  }, [loc.city, loc.region, loc.lat, loc.lng]);
 
-  const heroPhoto = useRestaurantPhoto(today?.restaurant)
+  const heroPhoto = useRestaurantPhoto(today?.restaurant);
 
-  const favRestaurants = all.filter((r) => ids.includes(r.id))
-  const recos = recommendByFavorites(favRestaurants, all, 3)
+  // 로딩(데이터/찜 변경)마다 한 번만 계산 — 재렌더로 깜빡이지 않게 메모이즈
+  const favRestaurants = useMemo(() => all.filter((r) => ids.includes(r.id)), [all, ids]);
+  const recos = useMemo(() => recommendByFavorites(favRestaurants, all, 3), [favRestaurants, all]);
 
   return (
     <div>
       {/* 헤더 */}
       <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-line bg-cream px-5">
-        <span className="font-serif text-[20px] font-black text-green">남도식탁</span>
+        <span className="font-serif text-[20px] font-black text-green">
+          남도식탁
+        </span>
         <span className="ml-auto flex items-center gap-1 text-[12px] text-muted">
           <MapPin size={13} className="text-terra" fill="#C85227" />
-          <b className="font-bold text-terra">{loc.city}</b> · 자동감지
+          <b className="font-bold text-terra">{loc.city}</b>
         </span>
-        <Link to="/favorites" aria-label="찜 목록" className="relative ml-1 grid h-9 w-9 place-items-center">
-          <Heart size={22} className="text-terra" fill={ids.length ? '#C85227' : 'transparent'} />
+        <Link
+          to="/favorites"
+          aria-label="찜 목록"
+          className="relative ml-1 grid h-9 w-9 place-items-center"
+        >
+          <Heart
+            size={22}
+            className="text-[#C85227]"
+            fill={ids.length ? '#C85227' : 'transparent'}
+          />
           {ids.length > 0 && (
-            <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-terra px-1 text-[10px] font-bold text-white">
+            <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#C85227] px-1 text-[10px] font-bold text-white">
               {ids.length}
             </span>
           )}
@@ -56,14 +71,19 @@ export default function Home() {
       </header>
 
       {/* 검색 프롬프트 */}
-      <div className="mx-5 mt-4 rounded-2xl border border-line bg-white px-4 py-3.5 text-[14px] text-ink">
+      <div className="relative mx-5 mt-4 rounded-2xl border border-line bg-white px-4 py-3.5 text-[14px] text-ink">
         지금 {loc.city} 계시죠? 오늘은 이 집 어때요?
+        <span className="absolute -bottom-[6px] right-4 h-3 w-3 rotate-45 border-b border-r border-line bg-white" />
       </div>
 
       {/* 리드 */}
       <div className="px-5 pb-1 pt-4">
-        <h1 className="text-[20px] font-extrabold tracking-tight text-ink">즐겨찾기와 저장된 장소로 취향 탐색</h1>
-        <p className="mt-1 text-[13px] text-muted">위치와 다녀간 기록을 보고 쓸수록 더 잘 맞는 곳을 골라드려요</p>
+        <h1 className="text-[18px] font-extrabold tracking-tight text-ink">
+          즐겨찾기와 저장된 장소로 취향 탐색
+        </h1>
+        <p className="mt-1 text-[11px] text-muted">
+          위치와 다녀간 기록을 보고 쓸수록 더 잘 맞는 곳을 골라드려요
+        </p>
       </div>
 
       {/* 오늘의 추천 */}
@@ -79,16 +99,19 @@ export default function Home() {
             </span>
           </div>
           <div className="flex flex-col gap-1.5 px-4 pb-4 pt-3.5">
-            <h3 className="text-[20px] font-extrabold text-ink">{today.restaurant.name}</h3>
+            <h3 className="text-[20px] font-extrabold text-ink">
+              {today.restaurant.name}
+            </h3>
             <span className="text-[13px] text-muted">
               {today.restaurant.city} · {today.restaurant.key} 전문
             </span>
             {today.allergy.groups.length > 0 && (
               <span className="mt-0.5 flex items-center gap-1 text-[12px] font-semibold text-allergyink">
-                <AlertTriangle size={13} /> {today.allergy.groups.join(', ')} 포함
+                <AlertTriangle size={13} /> {today.allergy.groups.join(', ')}{' '}
+                포함
               </span>
             )}
-            <span className="mt-1 rounded-xl bg-terra py-3 text-center text-[14px] font-bold text-white">
+            <span className="mt-1 rounded-xl bg-[#D5EBDE] py-3 text-center text-[14px] font-extrabold text-olive">
               가는 길 보기
             </span>
           </div>
@@ -99,8 +122,12 @@ export default function Home() {
       {recos.length > 0 ? (
         <>
           <div className="mx-5 mt-4 rounded-2xl bg-green px-4 py-3.5">
-            <b className="block text-[15px] font-bold text-white">찜한 {ids.length}곳 취향으로 골랐어요</b>
-            <span className="text-[12px] text-white/70">비슷한 향토 키워드로 다음 장소를 추천해요</span>
+            <b className="block text-[15px] font-bold text-white">
+              찜한 {ids.length}곳 취향으로 골랐어요
+            </b>
+            <span className="text-[12px] text-white/70">
+              비슷한 향토 키워드로 다음 장소를 추천해요
+            </span>
           </div>
           <div className="flex flex-col gap-2.5 px-5 pt-2.5">
             {recos.map(({ r, why }) => (
@@ -110,18 +137,29 @@ export default function Home() {
         </>
       ) : (
         <div className="mx-5 mt-4 rounded-2xl bg-green px-4 py-3.5">
-          <b className="block text-[15px] font-bold text-white">마음에 드는 곳에 하트를 눌러보세요</b>
-          <span className="text-[12px] text-white/70">찜한 장소가 쌓일수록 취향에 맞는 추천을 드려요</span>
+          <b className="block text-[15px] font-bold text-white">
+            마음에 드는 곳에 하트를 눌러보세요
+          </b>
+          <span className="text-[12px] text-white/70">
+            찜한 장소가 쌓일수록 취향에 맞는 추천을 드려요
+          </span>
         </div>
       )}
 
       {/* 이번 주 제철 (드래그 가로 스크롤) */}
       <div className="flex items-end justify-between px-5 pb-1.5 pt-5">
         <div>
-          <span className="text-[12px] text-muted-soft">{loc.city} 기준 · 밀어서 더 보기</span>
-          <h2 className="mt-0.5 text-[19px] font-extrabold text-ink">{month}월 지금 제철</h2>
+          <span className="text-[12px] text-muted-soft">
+            {loc.city} 기준 · 밀어서 더 보기
+          </span>
+          <h2 className="mt-0.5 text-[19px] font-extrabold text-ink">
+            {month}월 지금 제철
+          </h2>
         </div>
-        <Link to="/seasonal" className="shrink-0 text-[12px] font-semibold text-terra">
+        <Link
+          to="/seasonal"
+          className="shrink-0 text-[12px] font-semibold text-terra"
+        >
           전체 보기 →
         </Link>
       </div>
@@ -140,7 +178,14 @@ export default function Home() {
             />
             <b className="mt-2 block text-[14px] font-bold text-ink">{s.item}</b>
             <span className="text-[12px] text-muted">
-              {s.region} · {s.level === '저렴' ? '지금 저렴' : s.vsAvgPct < 0 ? `연평균比 ${Math.abs(s.vsAvgPct)}%↓` : s.vsAvgPct > 0 ? `연평균比 ${s.vsAvgPct}%↑` : '연평균 수준'}
+              {s.region} ·{' '}
+              {s.level === '저렴'
+                ? '지금 저렴'
+                : s.vsAvgPct < 0
+                  ? `연평균比 ${Math.abs(s.vsAvgPct)}%↓`
+                  : s.vsAvgPct > 0
+                    ? `연평균比 ${s.vsAvgPct}%↑`
+                    : '연평균 수준'}
             </span>
             <span className="mt-1 flex items-center gap-0.5 text-[12px] font-bold text-terra">
               시세 보기 <ChevronRight size={13} />
@@ -149,5 +194,5 @@ export default function Home() {
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -4,7 +4,7 @@ import { Home, Store, Sprout, MessageCircle } from 'lucide-react'
 
 const TABS = [
   { to: '/', label: '홈', icon: Home, end: true },
-  { to: '/market', label: '시장찾기', icon: Store, end: false },
+  { to: '/market', label: '시장·음식점', icon: Store, end: false },
   { to: '/seasonal', label: '제철', icon: Sprout, end: false },
   { to: '/chat', label: '대화', icon: MessageCircle, end: false },
 ]
