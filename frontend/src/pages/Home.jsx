@@ -5,8 +5,11 @@ import { MapPin, Heart, ChevronRight, AlertTriangle } from 'lucide-react';
 import * as api from '../api/client.js';
 import { useFavorites } from '../store/FavoritesContext.jsx';
 import { recommendByFavorites } from '../lib/derive.js';
+import { imageForIngredient } from '../lib/categoryImage.js';
 import RestaurantCard from '../components/RestaurantCard.jsx';
+import PlaceholderImage from '../components/PlaceholderImage.jsx';
 import { useDragScroll } from '../hooks/useDragScroll.js';
+import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js';
 
 export default function Home() {
   const { ids } = useFavorites();
@@ -32,8 +35,10 @@ export default function Home() {
     api.getSeasonal(loc).then(setSeasonal);
   }, [loc.city, loc.region, loc.lat, loc.lng]);
 
+  const heroPhoto = useRestaurantPhoto(today?.restaurant);
+
+  // 로딩(데이터/찜 변경)마다 한 번만 계산 — 재렌더로 깜빡이지 않게 메모이즈
   const favRestaurants = useMemo(() => all.filter((r) => ids.includes(r.id)), [all, ids]);
-  // 로딩(데이터/찜 변경)마다 한 번 랜덤 추출 — 재렌더로 깜빡이지 않게 메모이즈
   const recos = useMemo(() => recommendByFavorites(favRestaurants, all, 3), [favRestaurants, all]);
 
   return (
@@ -87,17 +92,11 @@ export default function Home() {
           to={`/place/${today.restaurant.id}`}
           className="mx-5 mt-3 block overflow-hidden rounded-2xl border border-line bg-white shadow-card"
         >
-          <div
-            className="relative flex h-[150px] items-center justify-center text-[13px] text-[#7C7466]"
-            style={{
-              background:
-                'repeating-linear-gradient(45deg,#D8CFBE 0 12px,#CFC5B2 12px 24px)',
-            }}
-          >
+          <div className="relative h-[150px]">
+            <PlaceholderImage src={heroPhoto} alt={today.restaurant.name} className="h-full w-full text-[13px]" />
             <span className="absolute left-3.5 top-3.5 rounded-full bg-terra px-2.5 py-1 text-[12px] font-bold text-white">
               오늘의 추천
             </span>
-            이미지
           </div>
           <div className="flex flex-col gap-1.5 px-4 pb-4 pt-3.5">
             <h3 className="text-[20px] font-extrabold text-ink">
@@ -170,23 +169,14 @@ export default function Home() {
         className="no-scrollbar flex cursor-grab gap-3 select-none overflow-x-auto px-5 pb-4 active:cursor-grabbing"
       >
         {seasonal.map((s) => (
-          <Link
-            key={s.id}
-            to={`/ingredient/${s.id}`}
-            className="w-[150px] shrink-0"
-          >
-            <div
-              className="flex h-24 items-center justify-center rounded-xl text-[15px] font-bold text-[#5C5344]"
-              style={{
-                background:
-                  'repeating-linear-gradient(45deg,#D8CFBE 0 12px,#CFC5B2 12px 24px)',
-              }}
-            >
-              {s.item}
-            </div>
-            <b className="mt-2 block text-[14px] font-bold text-ink">
-              {s.item}
-            </b>
+          <Link key={s.id} to={`/ingredient/${s.id}`} className="w-[150px] shrink-0">
+            <PlaceholderImage
+              src={imageForIngredient(s.item)}
+              alt={s.item}
+              label={s.item}
+              className="h-24 w-full rounded-xl text-[11px]"
+            />
+            <b className="mt-2 block text-[14px] font-bold text-ink">{s.item}</b>
             <span className="text-[12px] text-muted">
               {s.region} ·{' '}
               {s.level === '저렴'

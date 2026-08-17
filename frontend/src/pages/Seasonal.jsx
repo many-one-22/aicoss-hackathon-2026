@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 import * as api from '../api/client.js'
+import { imageForIngredient } from '../lib/categoryImage.js'
+import PlaceholderImage from '../components/PlaceholderImage.jsx'
 
 export default function Seasonal() {
   const [seasonal, setSeasonal] = useState([])
@@ -38,12 +40,12 @@ export default function Seasonal() {
               to={`/ingredient/${s.id}`}
               className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3"
             >
-              <div
-                className="grid h-16 w-16 shrink-0 place-items-center rounded-xl text-center text-[13px] font-bold text-[#5C5344]"
-                style={{ background: 'repeating-linear-gradient(45deg,#D8CFBE 0 12px,#CFC5B2 12px 24px)' }}
-              >
-                {s.item}
-              </div>
+              <PlaceholderImage
+                src={imageForIngredient(s.item)}
+                alt={s.item}
+                label={s.item}
+                className="h-16 w-16 shrink-0 rounded-xl text-[11px]"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <b className="truncate text-[16px] font-bold text-ink">{s.item}</b>

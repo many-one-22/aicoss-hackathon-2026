@@ -3,14 +3,16 @@
 import { Link } from 'react-router-dom'
 import PlaceholderImage from './PlaceholderImage.jsx'
 import HeartButton from './HeartButton.jsx'
+import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js'
 
 export default function RestaurantCard({ restaurant: r, why = [], showHeart = true }) {
+  const photoSrc = useRestaurantPhoto(r)
   return (
     <Link
       to={`/place/${r.id}`}
       className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3"
     >
-      <PlaceholderImage className="h-16 w-16 shrink-0 rounded-xl text-[10px]" />
+      <PlaceholderImage src={photoSrc} alt={r.name} className="h-16 w-16 shrink-0 rounded-xl text-[10px]" />
       <div className="min-w-0 flex-1">
         <b className="block truncate text-[16px] font-bold text-ink">{r.name}</b>
         <span className="block truncate text-[12px] text-muted">
