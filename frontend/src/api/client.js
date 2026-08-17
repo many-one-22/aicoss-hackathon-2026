@@ -152,42 +152,83 @@ export async function getTodayRecommendation(loc = {}) {
 }
 
 export async function search(query, loc) {
-  await delay(220)
-  const hits = searchRestaurants(query, RESTAURANTS)
-  return loc ? byDistance(hits, originOf(loc)) : hits
+  try {
+    const res = await fetch('http://localhost:8000/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, region: loc?.region, top_k: 10 }),
+    })
+    if (!res.ok) throw new Error('backend error')
+    const data = await res.json()
+
+    const byId = new Map(RESTAURANTS.map((r) => [String(r.poi_id), r]))
+    const hits = data.results.map((item) => byId.get(String(item.restaurant_id))).filter(Boolean)
+
+    return loc ? byDistance(hits, originOf(loc)) : hits
+  } catch (e) {
+    // 백엔드 실패 시 로컬 검색으로 자동 전환
+    await delay(220)
+    const hits = searchRestaurants(query, RESTAURANTS)
+    return loc ? byDistance(hits, originOf(loc)) : hits
+  }
 }
 
-/* ── 챗봇 — minseo AI 추천 엔진(retrieve+recommend) 이식본 ──
-   자연어 → 필터 파싱 → 하드필터 → 랭킹(질의·향토색·근접) → 시세·시장 보강. */
 export async function chatReply(text, loc = {}) {
-  await delay(500)
   const cityLabel = loc.city || '현재 위치'
-  const { filters, fallback, results } = retrieveLocal(text, loc, 4)
 
-  if (!results.length) {
-    return {
-      messages: [
-        { who: 'bot', text: `아직 ${cityLabel} 근처에서 딱 맞는 곳을 못 찾았어요. 메뉴(예: 꼬막·게장·백반)나 상황(예: 가족·해장)을 함께 말해주시면 더 정확해집니다.` },
-      ],
-      hits: [],
+  try {
+    const params = new URLSearchParams({ q: text, top_n: 4 })
+    if (loc?.region) params.set('region', loc.region)
+    const res = await fetch(`http://localhost:8001/chat?${params}`)
+    if (!res.ok) throw new Error('backend error')
+    const data = await res.json()
+
+    if (!data.results.length) {
+      return {
+        messages: [
+          { who: 'bot', text: `아직 ${cityLabel} 근처에서 딱 맞는 곳을 못 찾았어요. 메뉴(예: 꼬막·게장·백반)나 상황(예: 가족·해장)을 함께 말해주시면 더 정확해집니다.` },
+        ],
+        hits: [],
+      }
     }
+
+    const top = data.results[0]
+    const bits = enrich(top, loc)
+    const messages = [
+      { who: 'bot', text: `${cityLabel} 근처 향토음식점으로 이곳을 추천해요.` },
+      { who: 'card', restaurant: top },
+    ]
+    if (bits.length) messages.push({ who: 'bot', text: `👍 ${top.name} — ${bits.join(' · ')}` })
+    return { messages, hits: data.results }
+  } catch (e) {
+    // 백엔드(KoSBERT 의미검색) 실패 시 로컬 토큰매칭 챗봇으로 자동 전환
+    await delay(500)
+    const { filters, fallback, results } = retrieveLocal(text, loc, 4)
+
+    if (!results.length) {
+      return {
+        messages: [
+          { who: 'bot', text: `아직 ${cityLabel} 근처에서 딱 맞는 곳을 못 찾았어요. 메뉴(예: 꼬막·게장·백반)나 상황(예: 가족·해장)을 함께 말해주시면 더 정확해집니다.` },
+        ],
+        hits: [],
+      }
+    }
+
+    const chips = [...filters.ingredients, ...filters.dishType, ...filters.health]
+    const cond = chips.length ? `'${chips.slice(0, 3).join(', ')}' ` : ''
+    const top = results[0]
+    const bits = enrich(top, loc)
+
+    const messages = [
+      {
+        who: 'bot',
+        text: fallback
+          ? `${cityLabel} 근처엔 딱 맞는 곳이 적어 조건을 넓혀 골랐어요. 가장 가까운 이곳을 추천해요.`
+          : `${cityLabel} 근처 ${cond}향토음식점으로 이곳을 추천해요.`,
+      },
+      { who: 'card', restaurant: top },
+    ]
+    if (bits.length) messages.push({ who: 'bot', text: `👍 ${top.name} — ${bits.join(' · ')}` })
+    return { messages, hits: results }
   }
-
-  // 인식한 조건 요약(재료/음식유형/건강)
-  const chips = [...filters.ingredients, ...filters.dishType, ...filters.health]
-  const cond = chips.length ? `‘${chips.slice(0, 3).join(', ')}’ ` : ''
-  const top = results[0] // 질문당 딱 한 곳만 추천
-  const bits = enrich(top, loc)
-
-  const messages = [
-    {
-      who: 'bot',
-      text: fallback
-        ? `${cityLabel} 근처엔 딱 맞는 곳이 적어 조건을 넓혀 골랐어요. 가장 가까운 이곳을 추천해요.`
-        : `${cityLabel} 근처 ${cond}향토음식점으로 이곳을 추천해요.`,
-    },
-    { who: 'card', restaurant: top },
-  ]
-  if (bits.length) messages.push({ who: 'bot', text: `👍 ${top.name} — ${bits.join(' · ')}` })
-  return { messages, hits: results }
 }
