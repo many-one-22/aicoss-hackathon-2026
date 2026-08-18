@@ -60,7 +60,8 @@ def _as_list(v):
 
 # 부정어 처리 — "전복 싫은데"처럼 재료 뒤에 부정어가 오면 그 재료를 결과에서 뺀다.
 # (KoSBERT 임베딩은 부정을 못 잡아 오히려 '전복'을 상위로 올리므로 명시적으로 제외한다.)
-_NEG_CUES = ("싫", "말고", "빼고", "제외", "별로", "아니", "못 먹", "못먹")
+_NEG_CUES = ("싫", "말고", "빼고", "빼줘", "빼주", "빼서", "뺀", "없이",
+             "제외", "별로", "아니", "못 먹", "못먹", "알레르기", "알러지")
 _EXCLUDABLE = (
     "전복", "꼬막", "조개", "굴", "홍합", "바지락", "소라", "골뱅이", "새우", "꽃게", "게장",
     "낙지", "오징어", "문어", "주꾸미", "장어", "갈치", "고등어", "홍어", "매생이",
@@ -90,16 +91,41 @@ def retrieve(query=None, filters=None, top_n=10, exclude_chain=True):
         health=_as_list(f.get("health")),
         exclude_chain=exclude_chain,
     )
+    # 향토음식점(한식)만 추천 — 카페·주점·양식 등은 컨셉에 안 맞아 제외
+    cands = [c for c in cands if c.get("cuisine_type") == "한식"]
     # 사용자가 싫다고 한 재료가 든 곳은 제외한다("전복 싫은데" → 전복집 제외)
     exclude = _parse_exclude(query)
     if exclude:
         cands = [c for c in cands
                  if not any(ing in ((c.get("menu") or "") + (c.get("place") or "")) for ing in exclude)]
+    # 같은 집이 두 POI_id로 중복될 수 있어 1곳만 남긴다.
+    # 주소 끝에 상호가 덧붙거나 공백이 달라도 같은 곳으로 보게 정규화(상호·공백 제거).
+    seen, uniq = set(), []
+    for c in cands:
+        place = c["place"] or ""
+        norm_addr = (c.get("address") or "").replace(place, "").replace(" ", "")
+        key = (place, norm_addr)
+        if key not in seen:
+            seen.add(key)
+            uniq.append(c)
+    cands = uniq
     # situation 은 현재 검색조건으로 쓰지 않음(무시)
     if query:
-        order = _get_ranker().rank(query, [c["rowid"] for c in cands], top_n)
+        ids = [c["rowid"] for c in cands]
+        order = _get_ranker().rank(query, ids, len(ids))   # 전체 임베딩 순위
         pos = {rid: i for i, rid in enumerate(order)}
-        cands = sorted((c for c in cands if c["rowid"] in pos), key=lambda c: pos[c["rowid"]])
+        # 짧은 단어 질의 보정 — KoSBERT는 단어 1개면 임베딩이 약해 랭킹이 흐려진다.
+        # 질의어가 메뉴·상호에 직접 있으면 임베딩보다 우선(리터럴 신호로 보완).
+        kws = [t for t in query.split() if len(t) >= 2]
+
+        def _lex_hit(c):
+            hay = (c.get("menu") or "") + (c.get("place") or "")
+            return any(k in hay for k in kws)
+
+        cands = sorted(
+            (c for c in cands if c["rowid"] in pos),
+            key=lambda c: (0 if _lex_hit(c) else 1, pos[c["rowid"]]),
+        )
     return cands[:top_n]
 
 
