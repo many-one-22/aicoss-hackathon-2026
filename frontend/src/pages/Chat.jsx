@@ -108,7 +108,7 @@ function Bubble({ m }) {
     const r = m.restaurant
     const allergy = allergyInfo(r)
     return (
-      <div className="mr-auto w-[88%] overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+      <div className="mr-auto w-[88%] shrink-0 overflow-hidden rounded-2xl border border-line bg-white shadow-card">
         {/* 카드 본체(이미지+정보) 전체가 상세로 이동하는 링크 */}
         <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="block active:bg-cream">
           <PlaceholderImage src={photoSrc} alt={r.name} className="h-[120px] w-full text-[12px]" />
