@@ -45,6 +45,29 @@ export function seasonalFor(r, loc = {}) {
   return { id: s.id, label: `${tag} ${s.item} · 지금 제철`, delta: s.vsAvgPct, level: s.level }
 }
 
+/* 식당 → 핵심재료 1개 + 현재 시세 레코드(제철 여부 무관).
+   seasonalFor 와 달리 peak_months 조건이 없어 '항상' 그 재료를 보여준다.
+   반환: { item, record }(record 없으면 null) | null(재료 매칭 실패) */
+export function keyIngredientFor(r, loc = {}) {
+  const hs = haystack(r)
+  const isGwangju = loc.region === '광주'
+  const items = new Set()
+  for (const [kw, item] of Object.entries(DISH_TO_ITEM)) {
+    if (hs.includes(kw)) items.add(item)
+  }
+  if (!items.size) return null
+  // 제철 조건 없이 (광주 우선 →) 연평균比 낮은(저렴) 순으로 시세 레코드 선택
+  const cand = SEASONAL.filter(
+    (s) => items.has(s.item) && (isGwangju || s.region === '전국'),
+  ).sort((a, b) => {
+    const reg = (a.region === '광주' ? 0 : 1) - (b.region === '광주' ? 0 : 1)
+    if (reg !== 0 && isGwangju) return reg
+    return a.vsAvgPct - b.vsAvgPct
+  })
+  const record = cand[0] || null
+  return { item: record ? record.item : [...items][0], record }
+}
+
 /* 찜 기반 취향 추천 — 찜한 식당들의 태그·대표키워드·지역 빈도로 유사도 랭킹 */
 export function favoriteProfile(favRestaurants) {
   const tagFreq = {}, keyFreq = {}, cityFreq = {}

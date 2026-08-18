@@ -133,10 +133,6 @@ export default function Ingredient() {
               </span>
             </Link>
           ))}
-          <div className="flex items-center justify-between rounded-xl border border-dashed border-[#CFC7B7] bg-cream px-4 py-3">
-            <span className="text-[13px] text-muted">제철 · 저가 알림 받기</span>
-            <span className="text-[13px] font-bold text-terra">설정 →</span>
-          </div>
         </div>
       </div>
 
