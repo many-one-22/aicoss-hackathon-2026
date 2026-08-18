@@ -2,6 +2,7 @@ venv/
 data/raw/
 models/
 __pycache__/
+*.sqlite
 *.pyc
 *.zip
 .vscode/

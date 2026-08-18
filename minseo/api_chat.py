@@ -46,9 +46,26 @@ _FILLER_WORDS = [
 ]
 
 
+# "A 말고 B", "A 대신 B" 같은 대조 표현. KoSBERT는 문장 임베딩 특성상 이런 부정/대조 표현을
+# 잘 구분 못 해서, "감자 말고 전복"처럼 두 명사가 점수상 박빙이 되면 컴퓨터/실행마다
+# 미세한 부동소수점 차이로 순위가 뒤집히는 불안정한 상황이 생길 수 있다(실제로 재현됨).
+# 검색어 자체에서 부정된 앞부분(A)을 아예 잘라내, 뒷부분(B)만 KoSBERT에 넘겨서 이 문제를 없앤다.
+_CONTRASTIVE_WORDS = ["말고", "대신"]
+
+
 def _clean_query(q: str) -> str:
-    """필러 단어 제거. 다 지워서 빈 문자열이 되면 원본 그대로 반환 (안전장치)."""
+    """대조 표현 처리 + 필러 단어 제거.
+    다 지워서 빈 문자열이 되면 원본 그대로 반환 (안전장치)."""
     cleaned = q
+
+    # 1) "A 말고 B" / "A 대신 B" → A는 버리고 B만 남긴다
+    for w in _CONTRASTIVE_WORDS:
+        idx = cleaned.find(w)
+        if idx != -1:
+            cleaned = cleaned[idx + len(w):]
+            break  # 여러 개 겹치는 경우는 드물어서 첫 번째만 처리
+
+    # 2) 필러 단어 제거
     for w in _FILLER_WORDS:
         cleaned = cleaned.replace(w, " ")
     cleaned = " ".join(cleaned.split())
