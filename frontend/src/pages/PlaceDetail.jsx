@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom'
 import { ChevronLeft, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import * as api from '../api/client.js'
-import { allergyInfo, seasonalFor } from '../lib/derive.js'
+import { allergyInfo, seasonalFor, keyIngredientFor } from '../lib/derive.js'
 import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js'
 import HeartButton from '../components/HeartButton.jsx'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
@@ -13,6 +13,12 @@ import { recordVisit } from '../store/visits.js'
 function NearbyThumb({ r }) {
   const photoSrc = useRestaurantPhoto(r)
   return <PlaceholderImage src={photoSrc} alt={r.name} className="h-[90px] w-full rounded-lg" />
+}
+
+/* 대표메뉴 — desc의 앞 메뉴들(최대 3), 없으면 대표키워드(key) */
+function menuLabel(r) {
+  const menus = (r.desc || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 3)
+  return menus.length ? menus.join(' · ') : r.key || '—'
 }
 
 /* 음식점 → 시장 네이버 '길찾기(도보)'를 연다. 이렇게 열면 화면 거리·경로가 '내 폰 위치'가
@@ -65,6 +71,7 @@ export default function PlaceDetail() {
 
   const allergy = allergyInfo(r)
   const season = seasonalFor(r)
+  const ing = keyIngredientFor(r, { region: r.region }) // 핵심재료(제철 무관)
   const mapUrl = `https://map.naver.com/v5/search/${encodeURIComponent(r.addr || r.name)}`
 
   return (
@@ -153,6 +160,33 @@ export default function PlaceDetail() {
         >
           근처시장 찾기
         </button>
+      </div>
+
+      {/* 대표메뉴 · 핵심재료 · 가장 가까운 시장 요약 */}
+      <div className="px-5 pb-1">
+        <div className="flex flex-col gap-2 rounded-xl border border-line bg-white px-4 py-3.5">
+          <div className="flex items-start justify-between gap-3">
+            <span className="shrink-0 text-[13px] text-muted">대표메뉴</span>
+            <span className="text-right text-[13px] font-semibold text-ink">{menuLabel(r)}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <span className="shrink-0 text-[13px] text-muted">핵심재료</span>
+            <span className="flex items-center gap-1.5 text-[13px] font-bold text-ink">
+              {ing?.item || '—'}
+              {ing?.record?.level === '저렴' && (
+                <span className="rounded-full bg-green/10 px-1.5 py-0.5 text-[11px] font-bold text-seasonink">
+                  지금 사기 좋아요
+                </span>
+              )}
+            </span>
+          </div>
+          {nearMarket && (
+            <span className="text-[11px] text-muted-soft">
+              📍 가장 가까운 {nearMarket.name}
+              {nearMarket._distKm != null ? ` · ${nearMarket._distKm}km` : ''}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* 이 근처 다른 추천 */}
