@@ -15,6 +15,22 @@ function NearbyThumb({ r }) {
   return <PlaceholderImage src={photoSrc} alt={r.name} className="h-[90px] w-full rounded-lg" />
 }
 
+/* 음식점 → 시장 네이버 '길찾기(도보)'를 연다. 이렇게 열면 화면 거리·경로가 '내 폰 위치'가
+   아니라 '이 음식점 기준'으로 표시된다(이름 검색은 사용자 현재 위치 기준이라 혼동됨).
+   양쪽 좌표가 없으면 시장 이름 검색으로 폴백. */
+function openNaverMarket(m, from) {
+  const enc = encodeURIComponent
+  const hasCoords = from?.lat != null && from?.lng != null && m.lat != null && m.lng != null
+  if (hasCoords) {
+    const start = `${from.lng},${from.lat},${enc(from.name)},,`
+    const goal = `${m.lng},${m.lat},${enc(m.name)},,`
+    window.open(`https://map.naver.com/p/directions/${start}/${goal}/-/walk`, '_blank', 'noopener,noreferrer')
+    return
+  }
+  const query = [m.name, m.sido, m.city].filter(Boolean).join(' ')
+  window.open(`https://map.naver.com/p/search/${enc(query)}`, '_blank', 'noopener,noreferrer')
+}
+
 export default function PlaceDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -23,6 +39,7 @@ export default function PlaceDetail() {
   const passed = location.state?.restaurant
   const [r, setR] = useState(passed || null)
   const [nearby, setNearby] = useState([])
+  const [nearMarket, setNearMarket] = useState(null) // 이 음식점에서 가장 가까운 전통시장
   const photoSrc = useRestaurantPhoto(r)
 
   useEffect(() => {
@@ -38,6 +55,10 @@ export default function PlaceDetail() {
     api.getRestaurants().then((all) =>
       setNearby(all.filter((x) => x.city === r.city && x.id !== r.id).slice(0, 2)),
     )
+    // 이 음식점 좌표 기준 가장 가까운 시장 1곳(getMarkets가 가까운 순 정렬 → 첫 번째)
+    api
+      .getMarkets({ lat: r.lat, lng: r.lng, city: r.city, region: r.region })
+      .then((ms) => setNearMarket(ms[0] || null))
   }, [r])
 
   if (!r) return <div className="p-10 text-center text-muted">불러오는 중…</div>
@@ -124,12 +145,14 @@ export default function PlaceDetail() {
         >
           길찾기
         </a>
-        <Link
-          to="/market"
-          className="flex-1 rounded-xl border-[1.5px] border-green bg-white py-3.5 text-center text-[15px] font-bold text-green"
+        <button
+          type="button"
+          onClick={() => nearMarket && openNaverMarket(nearMarket, r)}
+          disabled={!nearMarket}
+          className="flex-1 rounded-xl border-[1.5px] border-green bg-white py-3.5 text-center text-[15px] font-bold text-green disabled:opacity-50"
         >
-          전통시장 보기
-        </Link>
+          근처시장 찾기
+        </button>
       </div>
 
       {/* 이 근처 다른 추천 */}

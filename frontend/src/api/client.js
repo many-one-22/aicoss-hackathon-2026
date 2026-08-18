@@ -70,7 +70,31 @@ function locFromCity(c, auto = true) {
     label: `${c.name} · ${auto ? '자동감지' : '선택'}`,
   };
 }
+/* 개발용 위치 오버라이드(테스트) — 주소에 ?loc=여수시 를 붙이면 그 도시로 고정.
+   ?loc=off 로 해제. 한 번 넣으면 localStorage에 저장돼 페이지를 옮겨도 유지된다.
+   '여수'처럼 줄여 써도 매칭되게 앞부분 일치도 허용. */
+function _readDevLoc() {
+  try {
+    const q = new URLSearchParams(window.location.search).get('loc');
+    if (q === 'off') {
+      localStorage.removeItem('namdo:devLoc');
+      return null;
+    }
+    if (q) localStorage.setItem('namdo:devLoc', q);
+    const name = q || localStorage.getItem('namdo:devLoc');
+    if (!name) return null;
+    const c =
+      cityByName(name) ||
+      CITIES.find((x) => x.name.startsWith(name) || x.matchCity.startsWith(name));
+    return c ? { ...locFromCity(c, false), label: `${c.name} · 테스트` } : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function detectLocation() {
+  const dev = _readDevLoc();
+  if (dev) return dev;
   const fallback = locFromCity(cityByName('광주'));
   if (!('geolocation' in navigator)) return fallback;
   try {
