@@ -107,34 +107,6 @@ export default function Ingredient() {
         <p className="mt-1.5 text-[11px] text-muted-soft">실선 = 월별 실측 · 보조선 = 기간 평균 · 데이터 KAMIS(namdo.sqlite)</p>
       </div>
 
-      {/* 🔮 6개월 시세 전망 — Prophet 예측(예측 있는 재료만 표시) */}
-      {ing.forecast && ing.forecast.length > 0 && (
-        <div className="px-5 pt-5">
-          <div className="mb-2 flex items-center justify-between">
-            <b className="text-[15px] font-bold text-ink">🔮 6개월 시세 전망</b>
-            {ing.forecastMape != null && (
-              <span className="rounded-full bg-green/10 px-2 py-0.5 text-[11px] font-bold text-green">
-                예측 정확도 {Math.round(100 - ing.forecastMape)}%
-              </span>
-            )}
-          </div>
-          <div className="h-[150px] w-full rounded-xl border border-tintgreen bg-gradient-to-b from-[#F4F8F5] to-cream p-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={forecastData} margin={{ top: 10, right: 8, left: 8, bottom: 6 }}>
-                <YAxis hide domain={['dataMin - 800', 'dataMax + 800']} />
-                <Tooltip
-                  formatter={(v) => [`${won(v)}원`, '예측']}
-                  labelFormatter={(i) => forecastData[i]?.ym ?? ''}
-                  contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #EAE3D7' }}
-                />
-                <Line type="monotone" dataKey="yhat" stroke="#C4703A" strokeWidth={2.5} strokeDasharray="5 4" dot={{ r: 3, fill: '#C4703A' }} activeDot={{ r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="mt-1.5 text-[11px] text-muted-soft">점선 = Prophet 예측 · 정확도는 과거 6개월 백테스트(MAPE) 기준</p>
-        </div>
-      )}
-
       {/* 통계 3종 */}
       <div className="grid grid-cols-3 gap-2.5 px-5 pt-4">
         <Stat label="오늘 시세" value={`${won(ing.current)}원`} sub={ing.unit ? `${ing.unit}당` : '소매가'} />
