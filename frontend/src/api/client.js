@@ -125,12 +125,37 @@ export function locationByName(name) {
   return c ? locFromCity(c, false) : null;
 }
 
+const round1 = (v) => Math.round(v * 10) / 10;
+
+/* 선택한 달의 실제 시세를 12개월 trend 이력에서 계산한다.
+   - 이번 달이거나 그 달 이력이 없으면 원본(오늘 기준 실측)을 그대로 사용.
+   - 과거 달은 그 달 가격으로 current/전월比/연평균比/level 을 다시 계산해
+     카드의 숫자와 배지가 서로 어긋나지 않게 한다. */
+function atMonth(s, month, thisMonth) {
+  if (month === thisMonth || !Array.isArray(s.trend)) return s;
+  let i = -1;
+  for (let k = s.trend.length - 1; k >= 0; k--) {
+    if (Number(s.trend[k][0].slice(5, 7)) === month) {
+      i = k;
+      break;
+    }
+  }
+  if (i < 0) return s; // 그 달 이력 없음 → 오늘 기준 유지
+  const cur = s.trend[i][1];
+  const prev = i > 0 ? s.trend[i - 1][1] : null;
+  const vsAvgPct = s.avg12 ? round1(((cur - s.avg12) / s.avg12) * 100) : s.vsAvgPct;
+  const wowPct = prev ? round1(((cur - prev) / prev) * 100) : null;
+  const level = vsAvgPct <= -8 ? '저렴' : vsAvgPct >= 8 ? '비쌈' : '평균';
+  return { ...s, current: cur, vsAvgPct, wowPct, level };
+}
+
 /* ── 제철 시세 (실데이터) ──
    현재 월에 성수기(peak_months)인 품목만. 광주 사용자는 광주 시세 우선 + 전국 보완.
    정렬: 광주 지역 우선 → 구매적기(저렴) → 평년比 낮은 순. */
 export async function getSeasonal(ctx = {}) {
   await delay(120);
-  const month = ctx.month || new Date().getMonth() + 1;
+  const thisMonth = new Date().getMonth() + 1;
+  const month = ctx.month || thisMonth;
   const isGwangju = ctx.region === '광주';
   const inMonth = (s) => s.peak_months.includes(month);
 
@@ -146,7 +171,7 @@ export async function getSeasonal(ctx = {}) {
     list = SEASONAL.filter((s) => s.region === '전국' && inMonth(s));
   }
   return list
-    .map((s) => ({ ...s, month, _regionRank: s.region === '광주' ? 0 : 1 }))
+    .map((s) => ({ ...atMonth(s, month, thisMonth), month, _regionRank: s.region === '광주' ? 0 : 1 }))
     .sort((a, b) => {
       if (a._regionRank !== b._regionRank) return a._regionRank - b._regionRank;
       const lv = (LEVEL_ORDER[a.level] ?? 1) - (LEVEL_ORDER[b.level] ?? 1);
