@@ -11,8 +11,10 @@ export default function Seasonal() {
   const [seasonal, setSeasonal] = useState([])
   const [loc, setLoc] = useState(null)
   const thisMonth = new Date().getMonth() + 1
+  const thisYear = new Date().getFullYear()
   const [offset, setOffset] = useState(0) // 0=이번 달, 음수=과거 달
   const month = (((thisMonth - 1 + offset) % 12) + 12) % 12 + 1
+  const year = thisYear + Math.floor((thisMonth - 1 + offset) / 12)
   const canPrev = offset > -11 // 최대 1년 전까지
   const canNext = offset < 0 // 이번 달이면 다음 달(미래)로 못 감
 
@@ -36,26 +38,29 @@ export default function Seasonal() {
       </header>
 
       <div className="px-5 pb-1 pt-4">
-        <div className="flex items-center justify-center gap-3">
-          <button
-            onClick={prevMonth}
-            disabled={!canPrev}
-            aria-label="이전 달"
-            className="grid h-9 w-9 place-items-center rounded-full text-muted transition disabled:opacity-25 active:bg-line/40"
-          >
-            <ChevronLeft size={22} />
-          </button>
-          <h1 className="text-center text-[20px] font-extrabold text-ink">
-            {month}월, {loc ? loc.city : '남도'}의 제철
-          </h1>
-          <button
-            onClick={nextMonth}
-            disabled={!canNext}
-            aria-label="다음 달"
-            className="grid h-9 w-9 place-items-center rounded-full text-muted transition disabled:opacity-25 active:bg-line/40"
-          >
-            <ChevronRight size={22} />
-          </button>
+        <div className="flex flex-col items-center leading-tight">
+          <span className="text-[14px] font-semibold text-muted-soft">{year}년</span>
+          <div className="mt-0.5 flex items-center justify-center gap-3">
+            <button
+              onClick={prevMonth}
+              disabled={!canPrev}
+              aria-label="이전 달"
+              className="grid h-9 w-9 place-items-center rounded-full text-muted transition disabled:opacity-25 active:bg-line/40"
+            >
+              <ChevronLeft size={22} />
+            </button>
+            <h1 className="text-center text-[18px] font-extrabold text-ink">
+              {month}월, {loc ? loc.city : '남도'}의 제철
+            </h1>
+            <button
+              onClick={nextMonth}
+              disabled={!canNext}
+              aria-label="다음 달"
+              className="grid h-9 w-9 place-items-center rounded-full text-muted transition disabled:opacity-25 active:bg-line/40"
+            >
+              <ChevronRight size={22} />
+            </button>
+          </div>
         </div>
         <p className="mt-1 text-center text-[13px] text-muted">
           {offset === 0
