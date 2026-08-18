@@ -15,7 +15,7 @@ try:
 except Exception:
     pass
 
-OUT = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "bp01_p07"
+OUT = Path(__file__).resolve().parents[3] / "data" / "processed" / "bp01_p07"
 
 
 def compute_seasonality(monthly: list[tuple[str, float]]) -> dict:

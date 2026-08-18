@@ -39,7 +39,7 @@ def classify_dishtype(place, menu):
 
 
 def run():
-    db = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
+    db = Path(__file__).resolve().parents[3] / "data" / "processed" / "namdo.sqlite"
     con = sqlite3.connect(db)
     dist = Counter()
     unclassified = 0

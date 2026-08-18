@@ -24,7 +24,7 @@ try:
 except Exception:
     pass
 
-PROC = Path(__file__).resolve().parent.parent.parent / "data" / "processed"
+PROC = Path(__file__).resolve().parents[3] / "data" / "processed"
 DB = PROC / "namdo.sqlite"
 
 # 지점명 뗀 브랜드가 이 개수 이상 반복되면 체인으로 본다(승인데이터 내 등장수만 사용).

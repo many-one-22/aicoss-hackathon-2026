@@ -23,7 +23,7 @@ except Exception:
 warnings.filterwarnings("ignore")
 logging.getLogger("cmdstanpy").setLevel(logging.ERROR)
 
-DB = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
+DB = Path(__file__).resolve().parents[3] / "data" / "processed" / "namdo.sqlite"
 
 
 def _load_series(item, region):

@@ -59,7 +59,7 @@ def extract_ingredients(text: str) -> list[str]:
 
 
 def main():
-    out = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "bp01_p07"
+    out = Path(__file__).resolve().parents[3] / "data" / "processed" / "bp01_p07"
     out.mkdir(parents=True, exist_ok=True)
     with open(out / "ingredient_map.csv", "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)

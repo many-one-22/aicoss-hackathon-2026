@@ -15,7 +15,7 @@ except Exception:
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from price_ingredients import extract_ingredients
 
-DB = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
+DB = Path(__file__).resolve().parents[3] / "data" / "processed" / "namdo.sqlite"
 
 
 def _load():

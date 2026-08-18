@@ -15,7 +15,7 @@ try:
 except Exception:
     pass
 
-DB = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
+DB = Path(__file__).resolve().parents[3] / "data" / "processed" / "namdo.sqlite"
 
 # food_name 을 제외한 영양 수치 컬럼 — 매칭 결과에 그대로 실어 보낸다.
 _NUTRIENT_COLS = ["weight_g", "energy_kcal", "carb_g", "sugar_g", "fat_g", "protein_g",

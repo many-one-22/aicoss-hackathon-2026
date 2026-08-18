@@ -43,7 +43,7 @@ def region_group(address, area=""):
 
 
 def run():
-    db = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
+    db = Path(__file__).resolve().parents[3] / "data" / "processed" / "namdo.sqlite"
     con = sqlite3.connect(db)
     c = Counter()
     for addr, area in con.execute("SELECT address, area FROM restaurants"):

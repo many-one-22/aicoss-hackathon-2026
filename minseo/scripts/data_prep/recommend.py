@@ -20,7 +20,7 @@ from hard_filter import hard_filter
 from price_lookup import lookup_menu
 from nutrition_lookup import lookup_nutrition
 
-DB = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "namdo.sqlite"
+DB = Path(__file__).resolve().parents[3] / "data" / "processed" / "namdo.sqlite"
 
 _ranker = None
 
