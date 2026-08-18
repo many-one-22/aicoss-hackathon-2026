@@ -9,7 +9,7 @@ import PlaceholderImage from '../components/PlaceholderImage.jsx'
 
 const greetingFor = (loc) => ({
   who: 'bot',
-  text: loc ? `지금 ${loc.city} 계시죠? 무엇을 도와드릴까요?` : '무엇을 도와드릴까요?',
+  text: '무엇을 도와드릴까요?',
 })
 
 export default function Chat() {
