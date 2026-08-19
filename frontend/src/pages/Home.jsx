@@ -58,7 +58,10 @@ export default function Home() {
 
   // 로딩(데이터/찜 변경)마다 한 번만 계산 — 재렌더로 깜빡이지 않게 메모이즈
   const favRestaurants = useMemo(() => all.filter((r) => ids.includes(r.id)), [all, ids]);
-  const recos = useMemo(() => recommendByFavorites(favRestaurants, all, 3), [favRestaurants, all]);
+  const recos = useMemo(
+    () => recommendByFavorites(favRestaurants, all, 3, loc),
+    [favRestaurants, all, loc],
+  );
 
   return (
     <div>

@@ -1,5 +1,6 @@
 /* 도메인 파생 로직 — 태그/키워드 기반 알레르기·제철 매칭, 찜 기반 추천, 검색. */
 import { SEASONAL, DISH_TO_ITEM } from '../data/seasonal.js'
+import { distanceKm, cityByName } from '../data/geo.js'
 
 export function haystack(r) {
   return `${(r.tags || []).join(' ')} ${r.key || ''} ${r.name || ''} ${r.desc || ''}`
@@ -82,11 +83,29 @@ export function topTags(favRestaurants, n = 3) {
   const { tagFreq } = favoriteProfile(favRestaurants)
   return Object.keys(tagFreq).sort((a, b) => tagFreq[b] - tagFreq[a]).slice(0, n)
 }
-export function recommendByFavorites(favRestaurants, allRestaurants, limit = 6) {
+/* 찜 취향(태그·음식유형) + 현재 위치 근접도로 추천한다.
+   loc을 넘기면 같은 권역만 후보로 삼고, 가까울수록 점수를 올려 먼 지역이 잘 안 뜨게 한다.
+   각 결과의 r에는 거리(_distKm)가 함께 담긴다. */
+export function recommendByFavorites(favRestaurants, allRestaurants, limit = 6, loc = null) {
   if (!favRestaurants.length) return []
   const favSet = new Set(favRestaurants.map((r) => r.id))
   const p = favoriteProfile(favRestaurants)
-  const scored = allRestaurants
+
+  // 현재 위치 좌표(없으면 도시명으로 보완) — 거리 가점의 기준점
+  const origin =
+    loc?.lat != null && loc?.lng != null
+      ? { lat: loc.lat, lng: loc.lng }
+      : loc?.city
+        ? cityByName(loc.city)
+        : null
+
+  // 위치를 알면 같은 권역(광주/전남)으로 후보를 좁힌다 — 다른 권역이 섞이는 걸 막음
+  const base = loc?.region
+    ? allRestaurants.filter((r) => r.region === loc.region)
+    : allRestaurants
+  const candidates = base.length ? base : allRestaurants
+
+  const scored = candidates
     .filter((r) => !favSet.has(r.id))
     .map((r) => {
       let score = 0
@@ -96,9 +115,22 @@ export function recommendByFavorites(favRestaurants, allRestaurants, limit = 6) 
       })
       if (r.key && p.keyFreq[r.key]) { score += 1.5 * p.keyFreq[r.key]; why.push(r.key) }
       if (r.city && p.cityFreq[r.city]) score += 0.6 * p.cityFreq[r.city]
-      return { r, score, why: [...new Set(why)].slice(0, 2) }
+
+      // 거리 가점 — 가까울수록 크게(5km 이내 최대), 30km 넘으면 사실상 0
+      let dist = null
+      if (origin && r.lat != null && r.lng != null) {
+        dist = distanceKm(origin, r)
+        score += 6 / (1 + dist / 5)
+      }
+      return {
+        r: dist != null ? { ...r, _distKm: Math.round(dist) } : r,
+        score,
+        dist,
+        why: [...new Set(why)].slice(0, 2),
+      }
     })
     .filter((x) => x.score > 0)
+
   scored.sort((a, b) => b.score - a.score)
   // 관련도 상위 후보 풀에서 점수를 가중치로 삼아 무작위 추출 → 로딩할 때마다 다른 추천이 뜬다
   const pool = scored.slice(0, Math.max(limit * 4, 12))

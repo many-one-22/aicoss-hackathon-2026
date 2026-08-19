@@ -10,13 +10,18 @@ import RestaurantCard from '../components/RestaurantCard.jsx'
 export default function Favorites() {
   const { ids } = useFavorites()
   const [all, setAll] = useState([])
+  const [loc, setLoc] = useState(null)
   useEffect(() => {
     api.getRestaurants().then(setAll)
+    api.detectLocation().then(setLoc)
   }, [])
 
   const favRestaurants = useMemo(() => ids.map((id) => all.find((r) => r.id === id)).filter(Boolean), [ids, all])
   // 로딩(데이터/찜 변경)마다 한 번 랜덤 추출 — 재렌더로 깜빡이지 않게 메모이즈
-  const recos = useMemo(() => recommendByFavorites(favRestaurants, all, 3), [favRestaurants, all])
+  const recos = useMemo(
+    () => recommendByFavorites(favRestaurants, all, 3, loc),
+    [favRestaurants, all, loc],
+  )
   const tags = useMemo(() => topTags(favRestaurants, 3), [favRestaurants])
 
   return (
