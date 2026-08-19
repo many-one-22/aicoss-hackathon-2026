@@ -34,9 +34,28 @@ def unit_for_item(conn, item):
     return row[0] if row else None
 
 
+def forecasts_by_item_region(conn):
+    """(item, region) → {"forecast": [...], "forecastMape": n} (price_forecast 테이블 없으면 {})."""
+    try:
+        rows = conn.execute(
+            "SELECT item, region, year_month, yhat, yhat_lower, yhat_upper, mape "
+            "FROM price_forecast ORDER BY item, region, year_month"
+        ).fetchall()
+    except sqlite3.OperationalError:
+        return {}
+
+    out = {}
+    for item, region, ym, yhat, yhat_lower, yhat_upper, mape in rows:
+        key = (item, region)
+        entry = out.setdefault(key, {"forecast": [], "forecastMape": mape})
+        entry["forecast"].append({"ym": ym, "yhat": yhat, "lo": yhat_lower, "hi": yhat_upper})
+    return out
+
+
 def build(db_path, out_path):
     conn = sqlite3.connect(db_path)
     rows = conn.execute("SELECT item, region, current_price, level, peak_months, trend_12m FROM seasonality").fetchall()
+    forecasts = forecasts_by_item_region(conn)
 
     result = []
     for item, region, current_price, level, peak_months_raw, trend_raw in rows:
@@ -51,6 +70,8 @@ def build(db_path, out_path):
             prev = trend[-2][1]
             wow_pct = round((trend[-1][1] - prev) / prev * 100, 1) if prev else 0
 
+        fc = forecasts.get((item, region))
+
         result.append(
             {
                 "id": f"{slugify(item)}-{region}",
@@ -64,6 +85,8 @@ def build(db_path, out_path):
                 "wowPct": wow_pct,
                 "peak_months": peak_months,
                 "trend": trend,
+                "forecast": fc["forecast"] if fc else None,
+                "forecastMape": fc["forecastMape"] if fc else None,
             }
         )
 

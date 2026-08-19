@@ -1,7 +1,7 @@
 /* ⑥ 전통시장 — 현재 위치 기준 시장/향토음식점 목록(가까운 순).
    카테고리 칩: 전통시장 / 향토음식점. */
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Navigation } from 'lucide-react'
 import * as api from '../api/client.js'
 import RestaurantCard from '../components/RestaurantCard.jsx'
@@ -22,7 +22,11 @@ export default function Market() {
   const [loc, setLoc] = useState(null)
   const [markets, setMarkets] = useState([])
   const [restaurants, setRestaurants] = useState([])
-  const [cat, setCat] = useState('전통시장')
+  // 선택 카테고리를 URL(?cat=)에 저장 → 상세 진입 후 뒤로가기 시 그 탭으로 복원
+  const [searchParams, setSearchParams] = useSearchParams()
+  const catParam = searchParams.get('cat')
+  const cat = CATEGORIES.includes(catParam) ? catParam : '전통시장'
+  const setCat = (c) => setSearchParams({ cat: c }, { replace: true })
 
   useEffect(() => {
     api.detectLocation().then((l) => {
