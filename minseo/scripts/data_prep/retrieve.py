@@ -67,6 +67,8 @@ _EXCLUDABLE = (
     "낙지", "오징어", "문어", "주꾸미", "장어", "갈치", "고등어", "홍어", "매생이",
     "삼겹", "돼지", "오리", "한우", "회",
 )
+# 한 글자지만 의미 있는 음식 키워드(탕·국 등) — lex 매칭에서 살린다(짧은 단어 보정).
+_FOOD1CHAR = ("탕", "국", "회", "면", "죽", "찜")
 
 
 def _parse_exclude(query):
@@ -116,7 +118,7 @@ def retrieve(query=None, filters=None, top_n=10, exclude_chain=True):
         pos = {rid: i for i, rid in enumerate(order)}
         # 짧은 단어 질의 보정 — KoSBERT는 단어 1개면 임베딩이 약해 랭킹이 흐려진다.
         # 질의어가 메뉴·상호에 직접 있으면 임베딩보다 우선(리터럴 신호로 보완).
-        kws = [t for t in query.split() if len(t) >= 2]
+        kws = [t for t in query.split() if len(t) >= 2 or t in _FOOD1CHAR]
 
         def _lex_hit(c):
             hay = (c.get("menu") or "") + (c.get("place") or "")
