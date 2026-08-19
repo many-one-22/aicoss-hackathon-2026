@@ -60,7 +60,7 @@ export default function Chat() {
       </header>
 
       {/* 메시지 (간격 여유 gap-4) */}
-      <div ref={scrollRef} className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-5 pb-40">
+      <div ref={scrollRef} className="no-scrollbar flex flex-1 flex-col gap-4 overflow-y-auto px-4 py-5 pb-40">
         {messages.map((m, i) => (
           <Bubble key={i} m={m} />
         ))}
@@ -91,7 +91,6 @@ export default function Chat() {
 }
 
 function Bubble({ m }) {
-  const photoSrc = useRestaurantPhoto(m.restaurant)
   if (m.who === 'user')
     return (
       <div className="ml-auto max-w-[80%] rounded-2xl rounded-br-md bg-green px-4 py-3 text-[15px] leading-relaxed text-white">
@@ -104,48 +103,64 @@ function Bubble({ m }) {
         답변 근거 데이터를 찾는 중…
       </div>
     )
-  if (m.who === 'card' && m.restaurant) {
-    const r = m.restaurant
-    const allergy = allergyInfo(r)
+  if (m.who === 'card' && m.restaurant)
     return (
-      <div className="mr-auto w-[88%] shrink-0 overflow-hidden rounded-2xl border border-line bg-white shadow-card">
-        {/* 카드 본체(이미지+정보) 전체가 상세로 이동하는 링크 */}
-        <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="block active:bg-cream">
-          <PlaceholderImage src={photoSrc} alt={r.name} className="h-[120px] w-full text-[12px]" />
-          <div className="flex flex-col gap-1.5 px-3.5 pt-3.5">
-            <b className="font-brand text-[18px] font-extrabold text-ink">{r.name}</b>
-            <span className="text-[13px] text-muted">
-              {r.city} · {r.key}
-              {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
-            </span>
-            {r.desc && <span className="line-clamp-2 text-[12px] text-ink/70">{r.desc}</span>}
-            {allergy.groups.length > 0 && (
-              <span className="flex items-center gap-1 text-[12px] font-semibold text-allergyink">
-                <AlertTriangle size={12} /> {allergy.groups.join(', ')} 포함
-              </span>
-            )}
-          </div>
-        </Link>
-        {/* 액션 버튼 (링크 밖 — a를 Link 안에 중첩하면 안 되므로 분리) */}
-        <div className="flex gap-2 p-3.5 pt-2.5">
-          <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="flex-1 rounded-lg bg-[#D5EBDE] py-2.5 text-center text-[13px] font-extrabold text-green">
-            상세 보기
-          </Link>
-          <a
-            href={`https://map.naver.com/v5/search/${encodeURIComponent(r.addr || r.name)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 rounded-lg border-[1.5px] border-green py-2.5 text-center text-[13px] font-bold text-green"
-          >
-            길찾기
-          </a>
-        </div>
+      <div className="mr-auto w-[88%]">
+        <ChatCard r={m.restaurant} />
       </div>
     )
-  }
+  if (m.who === 'cards' && m.restaurants?.length)
+    return (
+      <div className="-mr-4 flex shrink-0 snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden pb-1 pr-4">
+        {m.restaurants.map((r, i) => (
+          <div key={i} className="w-[80%] shrink-0 snap-start">
+            <ChatCard r={r} />
+          </div>
+        ))}
+      </div>
+    )
   return (
     <div className="mr-auto max-w-[80%] rounded-2xl rounded-bl-md bg-white px-4 py-3 text-[15px] leading-relaxed text-ink shadow-card">
       {m.text}
+    </div>
+  )
+}
+
+/* 챗봇 추천 카드 1장 — 세로 단일카드/가로 캐러셀 양쪽에서 재사용. 너비는 부모가 결정. */
+function ChatCard({ r }) {
+  const photoSrc = useRestaurantPhoto(r)
+  const allergy = allergyInfo(r)
+  return (
+    <div className="w-full overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+      <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="block active:bg-cream">
+        <PlaceholderImage src={photoSrc} alt={r.name} className="h-[120px] w-full text-[12px]" />
+        <div className="flex flex-col gap-1.5 px-3.5 pt-3.5">
+          <b className="font-brand text-[18px] font-extrabold text-ink">{r.name}</b>
+          <span className="text-[13px] text-muted">
+            {r.city} · {r.key}
+            {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
+          </span>
+          {r.desc && <span className="line-clamp-2 text-[12px] text-ink/70">{r.desc}</span>}
+          {allergy.groups.length > 0 && (
+            <span className="flex items-center gap-1 text-[12px] font-semibold text-allergyink">
+              <AlertTriangle size={12} /> {allergy.groups.join(', ')} 포함
+            </span>
+          )}
+        </div>
+      </Link>
+      <div className="flex gap-2 p-3.5 pt-2.5">
+        <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="flex-1 rounded-lg bg-[#D5EBDE] py-2.5 text-center text-[13px] font-extrabold text-green">
+          상세 보기
+        </Link>
+        <a
+          href={`https://map.naver.com/v5/search/${encodeURIComponent(r.addr || r.name)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 rounded-lg border-[1.5px] border-green py-2.5 text-center text-[13px] font-bold text-green"
+        >
+          길찾기
+        </a>
+      </div>
     </div>
   )
 }

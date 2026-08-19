@@ -170,7 +170,7 @@ export default function Home() {
       <div
         ref={seasonalDrag.ref}
         {...seasonalDrag.bind}
-        className="no-scrollbar flex cursor-grab gap-3 select-none overflow-x-auto px-5 pb-4 active:cursor-grabbing"
+        className="flex cursor-grab gap-3 select-none overflow-x-auto overflow-y-hidden px-5 pb-3 active:cursor-grabbing"
       >
         {seasonal.map((s) => (
           <Link key={s.id} to={`/ingredient/${s.id}`} className="w-[150px] shrink-0">
