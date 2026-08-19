@@ -1,0 +1,12 @@
+venv/
+*/venv/
+node_modules/
+.git/
+frontend/
+backend/venv/
+minseo/venv/
+dawon/
+__pycache__/
+*.pyc
+.DS_Store
+data/raw/
