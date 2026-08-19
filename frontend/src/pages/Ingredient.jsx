@@ -6,6 +6,7 @@ import { ChevronLeft } from 'lucide-react'
 import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip } from 'recharts'
 import * as api from '../api/client.js'
 import ChatFab from '../components/ChatFab.jsx'
+import { retailOf } from '../lib/retailUnit.js'
 
 const won = (n) => (n ?? 0).toLocaleString('ko-KR')
 
@@ -30,6 +31,8 @@ export default function Ingredient() {
 
   const vs = ing.vsAvgPct
   const vsTxt = vs < 0 ? `연평균比 ${Math.abs(vs)}%↓` : vs > 0 ? `연평균比 ${vs}%↑` : '연평균 수준'
+  // 장 볼 때 감각에 맞춘 가격(실제 사는 단위로 환산)
+  const retail = retailOf(ing.name, ing.current, ing.unit)
 
   return (
     <div>
@@ -50,6 +53,22 @@ export default function Ingredient() {
         <p className="mt-1.5 text-[15px] font-bold text-seasonink">
           {vsTxt} <span className="text-[12px] font-normal text-muted">KAMIS 실측 · 오늘 기준</span>
         </p>
+
+        {/* 장 볼 때 기준 가격 — 실제 사는 단위로 환산해 한눈에 */}
+        <div className="mt-3 flex items-center gap-3 rounded-2xl border border-line bg-white px-4 py-3">
+          <span className="shrink-0 rounded-full bg-terra/10 px-2.5 py-1 text-[11px] font-bold text-terra">
+            장 볼 때
+          </span>
+          <div className="min-w-0">
+            <b className="block text-[19px] font-extrabold leading-tight text-ink">
+              {won(retail.price)}원
+              <span className="ml-1 text-[13px] font-bold text-muted">/ {retail.unit}</span>
+            </b>
+            {retail.hint && (
+              <span className="text-[12px] text-muted-soft">보통 {retail.hint} 정도예요</span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* 🌐 6개월 시세 전망 — Prophet 예측(예측 있는 재료만 표시) */}
@@ -97,7 +116,12 @@ export default function Ingredient() {
         <b className="font-brand text-[15px] font-bold text-ink">가까운 전통시장</b>
         <div className="mt-2.5 flex flex-col gap-2.5">
           {markets.map((m) => (
-            <Link key={m.id} to="/market" className="rounded-2xl border border-line bg-white p-3.5">
+            <Link
+              key={m.id}
+              to={`/market/${m.id}`}
+              state={{ market: m }}
+              className="rounded-2xl border border-line bg-white p-3.5"
+            >
               <b className="block font-brand text-[15px] font-bold text-ink">{m.name}</b>
               <span className="text-[12px] text-muted">
                 {m.sido} {m.city} · {(m.items || []).slice(0, 3).join('·')}

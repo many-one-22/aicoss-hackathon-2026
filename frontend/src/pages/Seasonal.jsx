@@ -8,6 +8,7 @@ import { ChevronRight, ChevronLeft, ArrowDownRight, ArrowUpRight, Minus } from '
 import * as api from '../api/client.js'
 import { imageForIngredient } from '../lib/categoryImage.js'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
+import { LogoMark } from '../components/Logo.jsx'
 
 /* 상태 태그(저렴/평균/비쌈) — 저렴은 딥그린, 비쌈은 테라코타, 그 외는 웜그레이. */
 function StatusTag({ level }) {
@@ -69,8 +70,9 @@ export default function Seasonal() {
 
   return (
     <div>
-      <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-cream px-5">
-        <span className="font-brand text-[20px] font-black text-green">제철 시세</span>
+      <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-line bg-cream px-5">
+        <LogoMark size={28} className="shrink-0" />
+        <span className="font-brand text-[18px] font-black text-green">제철 시세</span>
         <span className="ml-auto text-[12px] text-muted">KAMIS 실측 · 오늘 기준</span>
       </header>
 

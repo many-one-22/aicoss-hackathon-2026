@@ -11,6 +11,7 @@ import {
   seasonalFor,
   searchRestaurants,
   favoriteProfile,
+  haystack,
 } from '../lib/derive.js';
 import { retrieveLocal, enrich } from '../lib/chatbot.js';
 import { getVisits } from '../store/visits.js';
@@ -92,7 +93,19 @@ function _readDevLoc() {
   }
 }
 
+/* 시연용 위치 고정 — true로 두면 GPS·직접 선택과 무관하게 항상 아래 지점으로 고정된다.
+   시연이 끝나면 false로 되돌리면 원래 동작(GPS 자동감지)으로 복귀. */
+const DEMO_FIXED_LOCATION = true;
+const DEMO_SPOT = {
+  city: '광주',
+  region: '광주',
+  lat: 35.1767,
+  lng: 126.9078, // 전남대학교(광주 북구)
+  label: '광주 전남대 · 시연',
+};
+
 export async function detectLocation() {
+  if (DEMO_FIXED_LOCATION) return { ...DEMO_SPOT };
   const dev = _readDevLoc();
   if (dev) return dev;
   const fallback = locFromCity(cityByName('광주'));
@@ -291,6 +304,44 @@ export async function getTodayRecommendation(loc = {}) {
     allergy: allergyInfo(pick),
     seasonal: seasonalFor(pick, loc),
   };
+}
+
+/* 이 시세품목(item)을 메뉴로 쓰는 식당들 — ingredient_map(메뉴 키워드→시세품목) 역매칭.
+   가까운 순으로 최대 limit개. */
+function restaurantsUsing(item, loc, limit = 8) {
+  const keywords = Object.entries(DISH_TO_ITEM)
+    .filter(([, v]) => v === item)
+    .map(([kw]) => kw);
+  if (!keywords.length) return [];
+  const matched = RESTAURANTS.filter((r) => {
+    const hs = haystack(r);
+    return keywords.some((kw) => hs.includes(kw));
+  });
+  return byDistance(matched, originOf(loc)).slice(0, limit);
+}
+
+/* ── 오늘의 제철 — 지금 저렴한 제철 재료 1개(재호출마다 랜덤) + 사러 갈 가장 가까운 시장
+   + 이 재료를 메뉴로 쓰는 근처 식당들. 저렴한 게 없으면 전체 제철 중에서 고른다.
+   양념류처럼 메뉴에 잘 안 드러나 매칭 식당이 없는 품목은 되도록 피하고, 식당이 있는 품목 위주로 뽑는다. */
+export async function getTodaySeasonal(loc = {}) {
+  const list = await getSeasonal(loc);
+  const cheap = list.filter((s) => s.level === '저렴');
+  const pool = cheap.length ? cheap : list;
+  if (!pool.length) return null;
+
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  let item = null, restaurants = [];
+  for (const s of shuffled) {
+    const rs = restaurantsUsing(s.item, loc);
+    if (rs.length) {
+      item = s; restaurants = rs;
+      break;
+    }
+  }
+  if (!item) item = shuffled[0]; // 전부 매칭 식당이 없으면 그냥 랜덤 하나
+
+  const market = byDistance(MARKETS, originOf(loc))[0] || null;
+  return { item, market, restaurants };
 }
 
 export async function search(query, loc) {
