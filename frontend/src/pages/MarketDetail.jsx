@@ -50,7 +50,7 @@ export default function MarketDetail() {
       {/* 헤더 */}
       <header className="sticky top-0 z-10 flex h-14 items-center justify-center border-b border-line bg-white px-12 text-[16px] font-bold text-ink">
         <button
-          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/market'))}
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
           aria-label="뒤로"
           className="absolute left-3 grid h-9 w-9 place-items-center"
         >

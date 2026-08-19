@@ -12,6 +12,9 @@ const greetingFor = (loc) => ({
   text: '무엇을 도와드릴까요?',
 })
 
+/* 첫 화면 질문 예시 — 누르면 바로 전송된다. */
+const EXAMPLES = ['전남대 맛집 추천해줘', '감자 들어간 음식 추천해줘']
+
 export default function Chat() {
   const [loc, setLoc] = useState(null)
   const [messages, setMessages] = useState([greetingFor(null)])
@@ -53,7 +56,7 @@ export default function Chat() {
         <Link to="/" aria-label="뒤로" className="-ml-2 grid h-9 w-9 shrink-0 place-items-center text-ink">
           <ChevronLeft size={22} />
         </Link>
-        <span className="font-brand text-[20px] font-black text-green">큐레이터 AI</span>
+        <span className="font-brand text-[18px] font-black text-green">큐레이터 AI</span>
         <button onClick={reset} className="ml-auto flex items-center gap-1 text-[13px] font-medium text-muted">
           <Plus size={15} /> 새 대화
         </button>
@@ -68,6 +71,22 @@ export default function Chat() {
 
       {/* 입력 (하단 탭바 위) */}
       <div className="fixed bottom-16 left-1/2 z-20 w-full max-w-phone -translate-x-1/2 bg-cream px-4 pb-3 pt-3">
+        {/* 질문 예시 — 아직 아무것도 안 물어봤을 때만 노출('새 대화'로 초기화하면 다시 보임) */}
+        {!messages.some((m) => m.who === 'user') && (
+          <div className="no-scrollbar mb-2 flex gap-2 overflow-x-auto">
+            {EXAMPLES.map((q) => (
+              <button
+                key={q}
+                type="button"
+                disabled={busy}
+                onClick={() => send(q)}
+                className="shrink-0 rounded-full border border-line bg-white px-3.5 py-2 text-[13px] font-medium text-ink/80 active:bg-cream disabled:opacity-50"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault()
