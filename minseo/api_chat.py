@@ -170,12 +170,12 @@ def _card(r, poi_id):
 
 def _seems_understood(q: str, cleaned_q: str, cards: list) -> bool:
     """질의를 실제로 이해했는지에 대한 대략적인 신호 (완벽한 판별은 불가능).
-
+ 
     ⚠️ 로컬(chatbot.js)의 isUnderstood()와 접근 자체가 다르다: 로컬은 순수 키워드/태그
     매칭이라 "매칭 없음 = 이해 못 함"이 거의 확실하지만, KoSBERT는 의미 기반이라
     리터럴 매칭이 없어도 맞는 답일 수 있다(예: "얼큰한 국물" → "매운탕"). 그래서
     이 함수는 결과를 지우는 데 쓰지 않고, 프론트가 참고할 신뢰도 신호로만 반환한다.
-
+ 
     판단 기준: 부정어(_NEGATION_WORDS)가 있으면 뭔가는 인식한 것 → True.
     그 외엔 cleaned_q의 단어가 결과 중 하나라도 메뉴/상호에 리터럴로 있으면 True."""
     if any(w in q for w in _NEGATION_WORDS):
@@ -204,10 +204,19 @@ def chat(q: str, region: Optional[str] = None, top_n: int = 4):
     res = retrieve(query=cleaned_q, filters={"region": region} if region else None, top_n=top_n)
     poi = _poi_map([r["rowid"] for r in res])
     cards = [_card(r, poi.get(r["rowid"])) for r in res]
+    
+    # 이해했는지 여부 판별
+    is_understood = _seems_understood(q, cleaned_q, cards)
+    
+    # [수정된 부분] 노트북 등 엉뚱한 단어를 입력해 이해하지 못했다고 판단되면
+    # 억지로 결과를 보내지 않고 빈 배열로 덮어씌웁니다.
+    if not is_understood:
+        cards = []
+
     return {
         "query": q,
         "cleaned_query": cleaned_q,
         "engine": "KoSBERT",
-        "understood": _seems_understood(q, cleaned_q, cards),
-        "results": cards,
+        "understood": is_understood,
+        "results": cards, # 여기서 빈 배열이 넘어가면 클라이언트가 에러 메시지를 띄움
     }
