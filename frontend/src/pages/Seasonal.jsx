@@ -10,6 +10,7 @@ import { imageForIngredient } from '../lib/categoryImage.js'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
 import { LogoMark } from '../components/Logo.jsx'
 import { CATEGORIES, categoryOf } from '../data/seasonalCategory.js'
+import { useDragScroll } from '../hooks/useDragScroll.js'
 
 /* 상태 태그(저렴/평균/비쌈) — 저렴은 딥그린, 비쌈은 테라코타, 그 외는 웜그레이. */
 function StatusTag({ level }) {
@@ -53,6 +54,7 @@ export default function Seasonal() {
   const thisYear = new Date().getFullYear()
   const [offset, setOffset] = useState(0) // 0=이번 달, 음수=과거 달
   const [cat, setCat] = useState('전체') // 카테고리 필터(채소/과일/해산물 등) — '전체'면 다 보임
+  const catDrag = useDragScroll() // 칩이 화면보다 길면 드래그로 넘길 수 있게
   const month = (((thisMonth - 1 + offset) % 12) + 12) % 12 + 1
   const year = thisYear + Math.floor((thisMonth - 1 + offset) / 12)
   const canPrev = offset > -11 // 최대 1년 전까지
@@ -134,7 +136,11 @@ export default function Seasonal() {
 
       {/* 카테고리 필터 — 이번 목록에 있는 카테고리만 칩으로 노출 */}
       {availableCats.length > 1 && (
-        <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-1 pt-3">
+        <div
+          ref={catDrag.ref}
+          {...catDrag.bind}
+          className="no-scrollbar flex cursor-grab select-none gap-2 overflow-x-auto px-5 pb-1 pt-3 active:cursor-grabbing"
+        >
           {['전체', ...availableCats].map((c) => (
             <button
               key={c}
