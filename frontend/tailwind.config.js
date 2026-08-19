@@ -21,6 +21,7 @@ export default {
       fontFamily: {
         sans: ['"Gothic A1"', 'system-ui', 'sans-serif'],
         serif: ['"Noto Serif KR"', 'serif'],
+        title: ['"Gyeonggi Title"', '"Noto Serif KR"', 'serif'], // 로고 워드마크(경기천년제목 Bold)
       },
       maxWidth: { phone: '430px' },
       boxShadow: {

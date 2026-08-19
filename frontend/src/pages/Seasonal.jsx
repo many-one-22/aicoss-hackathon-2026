@@ -33,7 +33,7 @@ export default function Seasonal() {
   return (
     <div>
       <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-cream px-5">
-        <span className="font-serif text-[20px] font-black text-green">제철 시세</span>
+        <span className="font-brand text-[20px] font-black text-green">제철 시세</span>
         <span className="ml-auto text-[12px] text-muted">KAMIS 실측 · 오늘 기준</span>
       </header>
 
@@ -49,7 +49,7 @@ export default function Seasonal() {
             >
               <ChevronLeft size={22} />
             </button>
-            <h1 className="text-center text-[18px] font-extrabold text-ink">
+            <h1 className="text-center font-brand text-[18px] font-extrabold text-ink">
               {month}월, {loc ? loc.city : '남도'}의 제철
             </h1>
             <button

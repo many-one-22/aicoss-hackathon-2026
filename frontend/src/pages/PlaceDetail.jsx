@@ -85,7 +85,7 @@ export default function PlaceDetail() {
         >
           <ChevronLeft size={22} />
         </button>
-        <span className="truncate">{r.name}</span>
+        <span className="truncate font-brand">{r.name}</span>
       </header>
 
       {/* 히어로 */}
@@ -99,7 +99,7 @@ export default function PlaceDetail() {
       {/* 이름 + 하트 */}
       <div className="flex flex-col gap-1.5 px-5 pb-2 pt-4">
         <div className="flex items-center gap-2.5">
-          <h1 className="min-w-0 flex-1 text-[24px] font-extrabold tracking-tight text-ink">{r.name}</h1>
+          <h1 className="min-w-0 flex-1 font-brand text-[24px] font-extrabold tracking-tight text-ink">{r.name}</h1>
           <HeartButton id={r.id} size={26} className="shrink-0" stop={false} />
         </div>
         <span className="text-[14px] text-muted">
@@ -192,12 +192,12 @@ export default function PlaceDetail() {
       {/* 이 근처 다른 추천 */}
       {nearby.length > 0 && (
         <div className="flex flex-col gap-2.5 bg-cream px-5 pb-8 pt-4">
-          <span className="text-[15px] font-bold text-ink">이 근처 다른 추천</span>
+          <span className="font-brand text-[15px] font-bold text-ink">이 근처 다른 추천</span>
           <div className="flex gap-2.5">
             {nearby.map((n) => (
               <Link key={n.id} to={`/place/${n.id}`} className="flex min-w-0 flex-1 flex-col gap-1">
                 <NearbyThumb r={n} />
-                <b className="truncate text-[13px] font-bold text-ink">{n.name}</b>
+                <b className="truncate font-brand text-[13px] font-bold text-ink">{n.name}</b>
                 <span className="text-[11px] text-muted">
                   {n.key} · {n.city}
                 </span>

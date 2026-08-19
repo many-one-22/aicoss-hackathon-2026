@@ -185,6 +185,12 @@ export async function getMarkets(loc) {
   return loc ? byDistance(MARKETS, originOf(loc)) : MARKETS;
 }
 
+/* 시장 1곳 상세 조회 (전통시장 상세 페이지용). */
+export async function getMarket(id) {
+  await delay(120);
+  return MARKETS.find((m) => String(m.id) === String(id)) || null;
+}
+
 /* 시세품목이 들어가는 향토음식(메뉴 키워드) — ingredient_map 역방향. */
 function dishesForItem(item) {
   const ks = Object.entries(DISH_TO_ITEM)

@@ -53,7 +53,7 @@ export default function Chat() {
         <Link to="/" aria-label="뒤로" className="-ml-2 grid h-9 w-9 shrink-0 place-items-center text-ink">
           <ChevronLeft size={22} />
         </Link>
-        <span className="font-serif text-[20px] font-black text-green">큐레이터 AI</span>
+        <span className="font-brand text-[20px] font-black text-green">큐레이터 AI</span>
         <button onClick={reset} className="ml-auto flex items-center gap-1 text-[13px] font-medium text-muted">
           <Plus size={15} /> 새 대화
         </button>
@@ -113,7 +113,7 @@ function Bubble({ m }) {
         <Link to={`/place/${r.id}`} state={{ restaurant: r }} className="block active:bg-cream">
           <PlaceholderImage src={photoSrc} alt={r.name} className="h-[120px] w-full text-[12px]" />
           <div className="flex flex-col gap-1.5 px-3.5 pt-3.5">
-            <b className="text-[18px] font-extrabold text-ink">{r.name}</b>
+            <b className="font-brand text-[18px] font-extrabold text-ink">{r.name}</b>
             <span className="text-[13px] text-muted">
               {r.city} · {r.key}
               {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
