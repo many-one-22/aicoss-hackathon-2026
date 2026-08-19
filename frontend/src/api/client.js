@@ -407,6 +407,13 @@ export async function chatReply(text, loc = {}) {
 
   // 1) KoSBERT 의미검색(백엔드) 우선 — 전체 식당 대상 '진짜 의미검색'
   const data = await fetchKosbert(text, region);
+  // 시세 질문("전복 시세")이면 식당 카드 대신 시세 카드(재료 식별 시)나 되물음 텍스트를 보여준다.
+  if (data && data.kind === 'price') {
+    const msg = data.item
+      ? { who: 'price', price: data }
+      : { who: 'bot', text: data.answer };
+    return { messages: [msg], hits: [], engine: 'price' };
+  }
   if (data) {
     const results = (data.results || []).map((c) => adoptCard(c, origin));
     if (results.length) {

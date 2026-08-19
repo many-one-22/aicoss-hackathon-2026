@@ -193,6 +193,78 @@ def _seems_understood(q: str, cleaned_q: str, cards: list) -> bool:
     return False
 
 
+# ── 시세 질문 응답 ────────────────────────────────────────────────────────
+# 챗봇이 식당 추천뿐 아니라 "전복 시세 어때?" 같은 재료 시세 질문에도 답한다.
+# 현재 시세(prices, 최신월·광주 우선)와 6개월 예측(price_forecast, 정상성 통과 재료)을
+# 조회해 짧은 자연어 답변을 만든다. 예측이 없는 재료는 현재 시세만 답한다.
+_STRONG_PRICE_CUES = ("시세", "얼마", "금액")
+# "지금 사도 될까?"처럼 시세라는 말 없이 '살 타이밍'을 묻는 표현도 시세 질문으로 본다.
+_BUY_CUES = ("사도", "살까", "사야", "사면", "지금 사", "언제 사", "구매", "비싼", "비쌀", "싼지", "쌀까")
+_WEAK_PRICE_CUES = ("가격",) + _BUY_CUES
+# 식당 의도 단서. '사먹'(외식)은 구매('사')와 헷갈리지 않게 여기에 둔다.
+_RESTAURANT_CUES = ("맛집", "식당", "음식점", "먹을", "먹고", "사먹")
+
+
+def _is_price_query(q: str) -> bool:
+    """시세 질문인지 판정. 강한 단서(시세/얼마/금액)는 항상 시세로 본다. 약한 단서
+    (가격·살 타이밍)만 있는데 식당 단서가 같이 있으면(예: "가격 싼 전복 맛집") 식당 질의로 본다."""
+    if not q:
+        return False
+    strong = any(c in q for c in _STRONG_PRICE_CUES)
+    weak = any(c in q for c in _WEAK_PRICE_CUES)
+    if not (strong or weak):
+        return False
+    if not strong and any(c in q for c in _RESTAURANT_CUES):
+        return False
+    return True
+
+
+def _price_answer(q: str):
+    """시세 질문이면 답변 dict, 아니면 None. 재료를 못 찾으면 되물음 답변을 준다."""
+    if not _is_price_query(q):
+        return None
+    con = sqlite3.connect(DB)
+    con.row_factory = sqlite3.Row
+    items = [r[0] for r in con.execute("SELECT DISTINCT item FROM prices").fetchall()]
+    # 긴 이름 우선 매칭(예: '깐마늘'을 '마늘'보다 먼저)
+    matched = next((it for it in sorted(items, key=len, reverse=True) if it in q), None)
+    if not matched:
+        con.close()
+        return {"item": None,
+                "answer": "어떤 재료의 시세가 궁금하세요? 예: 전복, 갈치, 배추, 파 시세"}
+    # 현재가: 최신월, 광주 우선 → 없으면 전국
+    cur = con.execute(
+        "SELECT region, year_month, price, unit FROM prices WHERE item=? "
+        "ORDER BY (region='광주') DESC, year_month DESC LIMIT 1", (matched,)).fetchone()
+    fc = con.execute(
+        "SELECT year_month, yhat, mape FROM price_forecast WHERE item=? ORDER BY year_month",
+        (matched,)).fetchall()
+    con.close()
+
+    price = int(round(cur["price"]))
+    unit = (cur["unit"] or "").strip()
+    unit_s = f"/{unit}" if unit else ""
+    lines = [f"{matched} 최근 시세는 {price:,}원{unit_s}이에요 ({cur['year_month']} 기준)."]
+    out = {"item": matched, "current": price, "unit": unit,
+           "year_month": cur["year_month"], "has_forecast": bool(fc)}
+    if fc:
+        last = fc[-1]
+        yhat = int(round(last["yhat"]))
+        trend = "오름세" if yhat > price * 1.02 else "내림세" if yhat < price * 0.98 else "보합세"
+        advice = ("지금 사두는 게 유리해요 — 앞으로 오를 전망이에요." if trend == "오름세"
+                  else "급하지 않다면 조금 기다려도 좋아요 — 내릴 전망이에요." if trend == "내림세"
+                  else "지금 사도 무난해요 — 큰 변동은 없을 전망이에요.")
+        lines.append(f"앞으로 6개월은 {trend}로 보여요 — {last['year_month']}쯤 약 {yhat:,}원 "
+                     f"예상 (예측 오차 {last['mape']}%).")
+        lines.append(advice)
+        out.update({"forecast": yhat, "forecast_month": last["year_month"],
+                    "trend": trend, "mape": last["mape"], "advice": advice})
+    else:
+        lines.append("이 재료는 예측 데이터가 없어 현재 시세만 알려드려요.")
+    out["answer"] = " ".join(lines)
+    return out
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "db": str(DB), "db_exists": DB.exists()}
@@ -203,6 +275,11 @@ def chat(q: str, region: Optional[str] = None, top_n: int = 4):
     """자연어 q(+선택 region) → KoSBERT 의미검색 상위 top_n 식당(카드 전체정보).
     "전복 싫어" 같은 순수 거부 표현의 실제 제외 처리는 retrieve.py의 _parse_exclude()가 담당.
     "understood"는 신뢰도 참고용 신호일 뿐, 결과 자체를 지우지는 않는다(위 docstring 참고)."""
+    # 시세 질문("전복 시세 어때?")이면 식당 검색 대신 시세로 답한다.
+    pa = _price_answer(q)
+    if pa is not None:
+        return {"query": q, "engine": "price", "kind": "price",
+                "understood": pa["item"] is not None, "results": [], **pa}
     cleaned_q = _clean_query(q)
     res = retrieve(query=cleaned_q, filters={"region": region} if region else None, top_n=top_n)
     poi = _poi_map([r["rowid"] for r in res])

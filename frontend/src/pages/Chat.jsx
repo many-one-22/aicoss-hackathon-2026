@@ -13,7 +13,7 @@ const greetingFor = (loc) => ({
 })
 
 /* 첫 화면 질문 예시 — 누르면 바로 전송된다. */
-const EXAMPLES = ['전남대 맛집 추천해줘', '감자 들어간 음식 추천해줘']
+const EXAMPLES = ['전남대 맛집 추천해줘', '감자 들어간 음식 추천해줘', '전복 시세 어때?']
 
 export default function Chat() {
   const [loc, setLoc] = useState(null)
@@ -73,7 +73,7 @@ export default function Chat() {
       <div className="fixed bottom-16 left-1/2 z-20 w-full max-w-phone -translate-x-1/2 bg-cream px-4 pb-3 pt-3">
         {/* 질문 예시 — 아직 아무것도 안 물어봤을 때만 노출('새 대화'로 초기화하면 다시 보임) */}
         {!messages.some((m) => m.who === 'user') && (
-          <div className="no-scrollbar mb-2 flex gap-2 overflow-x-auto">
+          <div className="mb-2 flex flex-wrap gap-2">
             {EXAMPLES.map((q) => (
               <button
                 key={q}
@@ -129,13 +129,11 @@ function Bubble({ m }) {
       </div>
     )
   if (m.who === 'cards' && m.restaurants?.length)
+    return <CardCarousel restaurants={m.restaurants} />
+  if (m.who === 'price' && m.price)
     return (
-      <div className="-mr-4 flex shrink-0 snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden pb-1 pr-4">
-        {m.restaurants.map((r, i) => (
-          <div key={i} className="w-[80%] shrink-0 snap-start">
-            <ChatCard r={r} />
-          </div>
-        ))}
+      <div className="mr-auto w-[86%]">
+        <PriceCard p={m.price} />
       </div>
     )
   return (
@@ -179,6 +177,109 @@ function ChatCard({ r }) {
         >
           길찾기
         </a>
+      </div>
+    </div>
+  )
+}
+
+/* 마우스로도 가로 스크롤을 쉽게 — 세로 휠을 가로로 바꿔주고, 잡고 끌기도 지원한다.
+   (터치 기기는 원래 스와이프가 되므로 영향 없음. 끌어서 넘긴 직후의 클릭은 카드 이동을
+   방지하려고 억제한다.) */
+function useDragScroll() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let down = false, moved = false, startX = 0, startLeft = 0
+    const onDown = (e) => { down = true; moved = false; startX = e.pageX; startLeft = el.scrollLeft }
+    const onMove = (e) => {
+      if (!down) return
+      const dx = e.pageX - startX
+      if (Math.abs(dx) > 4) moved = true
+      el.scrollLeft = startLeft - dx
+    }
+    const onUp = () => { down = false }
+    const onClick = (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false } }
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { el.scrollLeft += e.deltaY; e.preventDefault() }
+    }
+    el.addEventListener('mousedown', onDown)
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    el.addEventListener('click', onClick, true)
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      el.removeEventListener('mousedown', onDown)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      el.removeEventListener('click', onClick, true)
+      el.removeEventListener('wheel', onWheel)
+    }
+  }, [])
+  return ref
+}
+
+/* 추천 카드 가로 캐러셀 — 휠·드래그로 옆으로 넘길 수 있다. */
+function CardCarousel({ restaurants }) {
+  const ref = useDragScroll()
+  return (
+    <div
+      ref={ref}
+      className="no-scrollbar -mr-4 flex shrink-0 cursor-grab snap-x snap-mandatory select-none gap-3 overflow-x-auto overflow-y-hidden pb-1 pr-4 active:cursor-grabbing"
+    >
+      {restaurants.map((r, i) => (
+        <div key={i} className="w-[80%] shrink-0 snap-start">
+          <ChatCard r={r} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* 시세 답변 카드 — 현재가·추세·6개월 예측을 한눈에. 추세는 소비자 관점 색상
+   (오름세=주황/주의, 내림세=초록/구매유리)으로 표시해 판단을 돕는다. */
+function PriceCard({ p }) {
+  const up = p.trend === '오름세'
+  const down = p.trend === '내림세'
+  const trendColor = up ? 'text-terra' : down ? 'text-green' : 'text-muted'
+  const trendBg = up ? 'bg-terra/10' : down ? 'bg-[#D5EBDE]' : 'bg-cream'
+  const arrow = up ? '▲' : down ? '▼' : '―'
+  return (
+    <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+      <div className="flex items-center justify-between border-b border-line bg-cream px-4 py-2.5">
+        <b className="font-brand text-[15px] font-extrabold text-green">{p.item} 시세</b>
+        <span className="text-[11px] text-muted">{p.year_month} 기준</span>
+      </div>
+      <div className="px-4 py-3.5">
+        <div className="flex items-end gap-1">
+          <b className="font-brand text-[27px] font-black leading-none text-ink">
+            {p.current.toLocaleString()}
+          </b>
+          <span className="pb-0.5 text-[15px] font-semibold text-ink">원</span>
+          {p.unit && <span className="pb-0.5 text-[13px] text-muted">/{p.unit}</span>}
+        </div>
+        {p.has_forecast ? (
+          <>
+            <div className="mt-3 flex items-center gap-2">
+              <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[13px] font-bold ${trendBg} ${trendColor}`}>
+                {arrow} {p.trend}
+              </span>
+              <span className="text-[13px] text-muted">
+                6개월 뒤 <b className="text-ink">{p.forecast.toLocaleString()}원</b>
+              </span>
+            </div>
+            <div className="mt-2 text-[11px] text-muted-soft">
+              AI 예측 · 오차 {p.mape}% ({p.forecast_month})
+            </div>
+            {p.advice && (
+              <div className={`mt-3 rounded-lg px-3 py-2 text-[12.5px] font-semibold ${trendBg} ${trendColor}`}>
+                💡 {p.advice}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="mt-3 text-[12px] text-muted">예측 데이터 없음 · 현재 시세 기준</div>
+        )}
       </div>
     </div>
   )
