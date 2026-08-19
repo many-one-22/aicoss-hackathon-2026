@@ -23,7 +23,7 @@ export default function SearchEmpty() {
 
       <div className="flex flex-col items-center px-8 pb-4 pt-12 text-center">
         <Search size={44} className="text-muted-soft" strokeWidth={2.4} />
-        <h2 className="mt-4 text-[20px] font-extrabold text-ink">검색 결과가 없어요</h2>
+        <h2 className="mt-4 font-brand text-[20px] font-extrabold text-ink">검색 결과가 없어요</h2>
         <p className="mt-2 text-[14px] leading-relaxed text-muted">
           입력하신 조건에 맞는 정보를 찾지 못했어요. 대신 근처 맛집을 추천해드려요.
         </p>
@@ -36,7 +36,7 @@ export default function SearchEmpty() {
       </div>
 
       <div className="flex flex-col gap-2.5 px-5 pb-6 pt-6">
-        <span className="text-[15px] font-bold text-ink">근처 음식점 추천</span>
+        <span className="font-brand text-[15px] font-bold text-ink">근처 음식점 추천</span>
         {nearby.map((r) => (
           <RestaurantCard key={r.id} restaurant={r} />
         ))}

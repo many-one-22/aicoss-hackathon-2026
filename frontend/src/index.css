@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 경기천년제목 Bold — 로고 워드마크용 (상업용 무료, 경기도청) */
+@font-face {
+  font-family: 'Gyeonggi Title';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/fonts-archive/GyeonggiTitle/GyeonggiTitle-Bold.woff2') format('woff2'),
+       url('https://cdn.jsdelivr.net/gh/fonts-archive/GyeonggiTitle/GyeonggiTitle-Bold.woff') format('woff');
+}
+
+/* 브랜드 제목용 글씨체(= 로고 '남도식탁'과 동일, 경기천년제목 Bold).
+   Tailwind 재빌드에 의존하지 않게 일반 클래스로 제공 — 헤더 제목 등에 사용. */
+.font-brand {
+  font-family: 'Gyeonggi Title', 'Noto Serif KR', serif;
+}
+
 html,
 body,
 #root {

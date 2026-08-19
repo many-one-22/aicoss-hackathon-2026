@@ -32,7 +32,7 @@ export default function Favorites() {
       {favRestaurants.length === 0 ? (
         <div className="flex flex-col items-center gap-3 px-8 py-16 text-center">
           <Heart size={52} className="text-muted/40" />
-          <h3 className="text-[17px] font-bold text-ink">아직 찜한 장소가 없어요</h3>
+          <h3 className="font-brand text-[17px] font-bold text-ink">아직 찜한 장소가 없어요</h3>
           <p className="text-[13px] leading-relaxed text-muted">
             마음에 드는 식당에서 하트를 누르면
             <br />
@@ -46,7 +46,7 @@ export default function Favorites() {
         <div className="flex flex-col gap-3 px-5 py-4">
           {/* 찜한 장소 */}
           <div className="flex items-baseline justify-between">
-            <h2 className="text-[18px] font-extrabold text-ink">찜한 장소</h2>
+            <h2 className="font-brand text-[18px] font-extrabold text-ink">찜한 장소</h2>
             <span className="text-[12px] text-muted">{favRestaurants.length}곳</span>
           </div>
           {favRestaurants.map((r) => (
@@ -57,7 +57,7 @@ export default function Favorites() {
           {recos.length > 0 && (
             <>
               <div className="flex items-baseline justify-between pt-2">
-                <h2 className="text-[18px] font-extrabold text-ink">찜 취향 기반 추천</h2>
+                <h2 className="font-brand text-[18px] font-extrabold text-ink">찜 취향 기반 추천</h2>
                 <span className="text-[12px] text-muted">비슷한 곳 {recos.length}곳</span>
               </div>
               <div className="rounded-2xl bg-green px-4 py-3.5">

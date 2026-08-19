@@ -1,24 +1,15 @@
 /* ⑥ 전통시장 — 현재 위치 기준 시장/향토음식점 목록(가까운 순).
    카테고리 칩: 전통시장 / 향토음식점. */
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { Navigation } from 'lucide-react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
+import { ChevronRight } from 'lucide-react'
 import * as api from '../api/client.js'
 import RestaurantCard from '../components/RestaurantCard.jsx'
 
 const CATEGORIES = ['전통시장', '향토음식점']
 
-/* 클릭 시 네이버 지도에서 해당 시장 '장소 화면'을 연다.
-   (검색결과 + 출발/도착 버튼이 있는 그 페이지 — 사용자가 도착을 누르면 길찾기로 이어짐)
-   시장명 + 지역으로 검색해 다른 지역 동명 시장과 헷갈리지 않게 한다. */
-function openNaverPlace(target) {
-  const { name, sido, city } = target
-  const query = [name, sido, city].filter(Boolean).join(' ')
-  const url = `https://map.naver.com/p/search/${encodeURIComponent(query)}`
-  window.open(url, '_blank', 'noopener,noreferrer')
-}
-
 export default function Market() {
+  const navigate = useNavigate()
   const [loc, setLoc] = useState(null)
   const [markets, setMarkets] = useState([])
   const [restaurants, setRestaurants] = useState([])
@@ -42,7 +33,7 @@ export default function Market() {
   return (
     <div>
       <header className="sticky top-0 z-10 flex h-14 items-center border-b border-line bg-cream px-5">
-        <span className="font-serif text-[20px] font-black text-green">{cat}</span>
+        <span className="font-brand text-[20px] font-black text-green">{cat}</span>
       </header>
 
       {/* 카테고리 칩 */}
@@ -68,11 +59,11 @@ export default function Market() {
               <button
                 key={m.id}
                 type="button"
-                onClick={() => openNaverPlace(m)}
+                onClick={() => navigate(`/market/${m.id}`, { state: { market: m } })}
                 className="w-full rounded-2xl border border-line bg-white p-3.5 text-left active:bg-cream"
               >
                 <div className="flex items-baseline gap-2">
-                  <b className="block text-[16px] font-bold text-ink">{m.name}</b>
+                  <b className="block font-brand text-[16px] font-bold text-ink">{m.name}</b>
                   {m._distKm != null && <span className="text-[12px] font-semibold text-terra">{m._distKm}km</span>}
                 </div>
                 <span className="text-[12px] text-muted">
@@ -84,8 +75,8 @@ export default function Market() {
                   {m.parking && <Mk>주차 가능</Mk>}
                   {m.openCycle && <Mk>{m.openCycle === '매일' ? '상설' : `장날 ${m.openCycle}`}</Mk>}
                   {(m.items || []).some((it) => it.includes('수산물')) && <Mk accent>수산물</Mk>}
-                  <span className="ml-auto flex items-center gap-1 text-[12px] font-bold text-green">
-                    <Navigation size={13} /> 길찾기
+                  <span className="ml-auto flex items-center gap-0.5 text-[12px] font-bold text-green">
+                    상세보기 <ChevronRight size={14} />
                   </span>
                 </div>
               </button>

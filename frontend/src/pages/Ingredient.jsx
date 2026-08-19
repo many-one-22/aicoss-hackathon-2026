@@ -37,12 +37,12 @@ export default function Ingredient() {
         <button onClick={() => navigate(-1)} aria-label="뒤로" className="absolute left-3 grid h-9 w-9 place-items-center">
           <ChevronLeft size={22} />
         </button>
-        {ing.name} · 산지·시세
+        <span className="font-brand">{ing.name} · 산지·시세</span>
       </header>
 
       {/* 타이틀 + 연평균비 */}
       <div className="bg-cream px-5 pb-4 pt-4">
-        <h1 className="font-sans text-[28px] font-black text-ink">{ing.name}</h1>
+        <h1 className="font-brand text-[28px] font-black text-ink">{ing.name}</h1>
         <p className="mt-0.5 text-[13px] text-muted">
           {ing.region} 시세 · 성수기 {ing.season}
           {ing.inSeason && <span className="ml-2 rounded-full bg-terra/10 px-2 py-0.5 text-[11px] font-bold text-terra">지금 제철</span>}
@@ -56,7 +56,7 @@ export default function Ingredient() {
       {ing.forecast && ing.forecast.length > 0 && (
         <div className="px-5 pt-3">
           <div className="mb-2 flex items-center justify-between">
-            <b className="text-[15px] font-bold text-ink">🌐 6개월 시세 전망</b>
+            <b className="font-brand text-[15px] font-bold text-ink">🌐 6개월 시세 전망</b>
             {ing.forecastMape != null && (
               <span className="rounded-full bg-green/10 px-2 py-0.5 text-[11px] font-bold text-green">
                 예측 정확도 {Math.round(100 - ing.forecastMape)}%
@@ -94,11 +94,11 @@ export default function Ingredient() {
 
       {/* 가까운 전통시장 */}
       <div className="px-5 pb-24 pt-5">
-        <b className="text-[15px] font-bold text-ink">가까운 전통시장</b>
+        <b className="font-brand text-[15px] font-bold text-ink">가까운 전통시장</b>
         <div className="mt-2.5 flex flex-col gap-2.5">
           {markets.map((m) => (
             <Link key={m.id} to="/market" className="rounded-2xl border border-line bg-white p-3.5">
-              <b className="block text-[15px] font-bold text-ink">{m.name}</b>
+              <b className="block font-brand text-[15px] font-bold text-ink">{m.name}</b>
               <span className="text-[12px] text-muted">
                 {m.sido} {m.city} · {(m.items || []).slice(0, 3).join('·')}
                 {m._distKm != null ? ` · ${m._distKm}km` : ''}

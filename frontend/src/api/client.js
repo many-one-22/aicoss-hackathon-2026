@@ -149,6 +149,16 @@ function atMonth(s, month, thisMonth) {
   return { ...s, current: cur, vsAvgPct, wowPct, level };
 }
 
+/* 단위 표기 교정 — 원본 데이터가 KAMIS 기준 단위를 축약/누락해 저장해 둠. 가격 숫자는 그대로
+   두고 라벨만 실제 소매 기준으로 바로잡는다.
+   - 'g' → '100g' (예: 홍합 2,858원은 /g이 아니라 /100g). 채소·버섯·고추·건어물류 23종.
+   - 오이 '개' → '10개' (오이는 10개 묶음 소매가 ~1.3만원. 무·브로콜리·호박은 1개라 그대로). */
+function fmtUnit(unit, item) {
+  if (unit === 'g') return '100g';
+  if (item === '오이' && unit === '개') return '10개';
+  return unit;
+}
+
 /* ── 제철 시세 (실데이터) ──
    현재 월에 성수기(peak_months)인 품목만. 광주 사용자는 광주 시세 우선 + 전국 보완.
    정렬: 광주 지역 우선 → 구매적기(저렴) → 평년比 낮은 순. */
@@ -171,7 +181,7 @@ export async function getSeasonal(ctx = {}) {
     list = SEASONAL.filter((s) => s.region === '전국' && inMonth(s));
   }
   return list
-    .map((s) => ({ ...atMonth(s, month, thisMonth), month, _regionRank: s.region === '광주' ? 0 : 1 }))
+    .map((s) => ({ ...atMonth(s, month, thisMonth), unit: fmtUnit(s.unit, s.item), month, _regionRank: s.region === '광주' ? 0 : 1 }))
     .sort((a, b) => {
       if (a._regionRank !== b._regionRank) return a._regionRank - b._regionRank;
       const lv = (LEVEL_ORDER[a.level] ?? 1) - (LEVEL_ORDER[b.level] ?? 1);
@@ -183,6 +193,12 @@ export async function getSeasonal(ctx = {}) {
 export async function getMarkets(loc) {
   await delay(160);
   return loc ? byDistance(MARKETS, originOf(loc)) : MARKETS;
+}
+
+/* 시장 1곳 상세 조회 (전통시장 상세 페이지용). */
+export async function getMarket(id) {
+  await delay(120);
+  return MARKETS.find((m) => String(m.id) === String(id)) || null;
 }
 
 /* 시세품목이 들어가는 향토음식(메뉴 키워드) — ingredient_map 역방향. */
@@ -216,7 +232,7 @@ export async function getIngredient(id) {
     id: s.id,
     name: s.item,
     region: s.region,
-    unit: s.unit,
+    unit: fmtUnit(s.unit, s.item),
     level: s.level,
     season: s.peak_months.map((m) => monthNames[m]).join('·'),
     current: s.current,

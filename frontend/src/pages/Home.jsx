@@ -8,6 +8,7 @@ import { recommendByFavorites } from '../lib/derive.js';
 import { imageForIngredient } from '../lib/categoryImage.js';
 import RestaurantCard from '../components/RestaurantCard.jsx';
 import PlaceholderImage from '../components/PlaceholderImage.jsx';
+import Logo from '../components/Logo.jsx';
 import { useDragScroll } from '../hooks/useDragScroll.js';
 import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js';
 
@@ -45,9 +46,7 @@ export default function Home() {
     <div>
       {/* 헤더 */}
       <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-line bg-cream px-5">
-        <span className="font-serif text-[20px] font-black text-green">
-          남도식탁
-        </span>
+        <Logo row size={30} />
         <span className="ml-auto flex items-center gap-1 text-[12px] text-muted">
           <MapPin size={13} className="text-terra" fill="#C85227" />
           <b className="font-bold text-terra">{loc.city}</b>
@@ -78,7 +77,7 @@ export default function Home() {
 
       {/* 리드 */}
       <div className="px-5 pb-1 pt-4">
-        <h1 className="text-[18px] font-extrabold tracking-tight text-ink">
+        <h1 className="font-brand text-[18px] font-extrabold tracking-tight text-ink">
           즐겨찾기와 저장된 장소로 취향 탐색
         </h1>
         <p className="mt-1 text-[11px] text-muted">
@@ -99,7 +98,7 @@ export default function Home() {
             </span>
           </div>
           <div className="flex flex-col gap-1.5 px-4 pb-4 pt-3.5">
-            <h3 className="text-[20px] font-extrabold text-ink">
+            <h3 className="font-brand text-[20px] font-extrabold text-ink">
               {today.restaurant.name}
             </h3>
             <span className="text-[13px] text-muted">
@@ -136,13 +135,18 @@ export default function Home() {
           </div>
         </>
       ) : (
-        <div className="mx-5 mt-4 rounded-2xl bg-green px-4 py-3.5">
-          <b className="block text-[15px] font-bold text-white">
-            마음에 드는 곳에 하트를 눌러보세요
-          </b>
-          <span className="text-[12px] text-white/70">
-            찜한 장소가 쌓일수록 취향에 맞는 추천을 드려요
+        <div className="mx-5 mt-4 flex items-center gap-3 rounded-2xl border border-tintgreen bg-tintgreen/50 px-4 py-3.5">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white">
+            <Heart size={17} className="text-terra" fill="#F2993E" />
           </span>
+          <div className="min-w-0">
+            <b className="block text-[14px] font-bold text-ink">
+              마음에 드는 곳에 하트를 눌러보세요
+            </b>
+            <span className="text-[12px] text-muted">
+              찜한 장소가 쌓일수록 취향에 맞는 추천을 드려요
+            </span>
+          </div>
         </div>
       )}
 
@@ -152,7 +156,7 @@ export default function Home() {
           <span className="text-[12px] text-muted-soft">
             {loc.city} 기준 · 밀어서 더 보기
           </span>
-          <h2 className="mt-0.5 text-[19px] font-extrabold text-ink">
+          <h2 className="mt-0.5 font-brand text-[19px] font-extrabold text-ink">
             {month}월 지금 제철
           </h2>
         </div>
@@ -166,7 +170,7 @@ export default function Home() {
       <div
         ref={seasonalDrag.ref}
         {...seasonalDrag.bind}
-        className="no-scrollbar flex cursor-grab gap-3 select-none overflow-x-auto px-5 pb-4 active:cursor-grabbing"
+        className="flex cursor-grab gap-3 select-none overflow-x-auto overflow-y-hidden px-5 pb-3 active:cursor-grabbing"
       >
         {seasonal.map((s) => (
           <Link key={s.id} to={`/ingredient/${s.id}`} className="w-[150px] shrink-0">

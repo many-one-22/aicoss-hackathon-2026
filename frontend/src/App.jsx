@@ -6,6 +6,7 @@ import SearchEmpty from './pages/SearchEmpty.jsx'
 import Chat from './pages/Chat.jsx'
 import Ingredient from './pages/Ingredient.jsx'
 import Market from './pages/Market.jsx'
+import MarketDetail from './pages/MarketDetail.jsx'
 import Favorites from './pages/Favorites.jsx'
 import Seasonal from './pages/Seasonal.jsx'
 
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/chat" element={<Chat />} />
         <Route path="/ingredient/:id" element={<Ingredient />} />
         <Route path="/market" element={<Market />} />
+        <Route path="/market/:id" element={<MarketDetail />} />
         <Route path="/seasonal" element={<Seasonal />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="*" element={<Navigate to="/" replace />} />

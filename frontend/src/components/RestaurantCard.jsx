@@ -14,7 +14,7 @@ export default function RestaurantCard({ restaurant: r, why = [], showHeart = tr
     >
       <PlaceholderImage src={photoSrc} alt={r.name} className="h-16 w-16 shrink-0 rounded-xl text-[10px]" />
       <div className="min-w-0 flex-1">
-        <b className="block truncate text-[16px] font-bold text-ink">{r.name}</b>
+        <b className="block truncate font-brand text-[16px] font-bold text-ink">{r.name}</b>
         <span className="block truncate text-[12px] text-muted">
           {r.city} · {r.key}
           {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
