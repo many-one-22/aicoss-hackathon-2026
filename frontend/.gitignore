@@ -7,3 +7,4 @@ dist-ssr
 
 # editor/agent local config
 .claude/
+.vercel

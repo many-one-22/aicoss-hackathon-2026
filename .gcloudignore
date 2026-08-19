@@ -1,0 +1,14 @@
+cat > .gcloudignore << 'EOF'
+venv/
+*/venv/
+node_modules/
+.git/
+frontend/
+backend/
+dawon/
+minseo/venv/
+__pycache__/
+*.pyc
+.DS_Store
+data/raw/
+EOF
