@@ -604,7 +604,7 @@
     "closed_days": "둘째, 넷째 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -716,7 +716,7 @@
     "closed_days": "매주 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -1308,7 +1308,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -1372,7 +1372,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -1388,7 +1388,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -1404,7 +1404,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -1436,7 +1436,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -1452,7 +1452,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -1468,7 +1468,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -2412,7 +2412,7 @@
     "closed_days": "첫째, 셋째 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -2572,7 +2572,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -2620,7 +2620,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "주점",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -2860,7 +2860,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -3644,7 +3644,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -3820,7 +3820,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4220,7 +4220,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4236,7 +4236,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4252,7 +4252,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4300,7 +4300,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4460,7 +4460,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4588,7 +4588,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4604,7 +4604,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -4700,7 +4700,7 @@
     "closed_days": "매주 월요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -9564,7 +9564,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -9708,7 +9708,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -10028,7 +10028,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -10812,7 +10812,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "일식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 0
   },
   {
@@ -11436,7 +11436,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -11788,7 +11788,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -11884,7 +11884,7 @@
     "closed_days": "둘째, 넷째 월요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 0
   },
   {
@@ -12172,7 +12172,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -12204,7 +12204,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -12924,7 +12924,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -14364,7 +14364,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -14476,7 +14476,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "주점",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -14588,7 +14588,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -14684,7 +14684,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -14940,7 +14940,7 @@
     "closed_days": "매주 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -15020,7 +15020,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "치킨",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -15116,7 +15116,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -15260,7 +15260,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -15340,7 +15340,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -16092,7 +16092,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -16124,7 +16124,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -16716,7 +16716,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 0
   },
   {
@@ -17148,7 +17148,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -17196,7 +17196,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -17452,7 +17452,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -19900,7 +19900,7 @@
     "closed_days": "매주 일요일, 공휴일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -20092,7 +20092,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -20172,7 +20172,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -20188,7 +20188,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -20700,7 +20700,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -20796,7 +20796,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -21228,7 +21228,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -21260,7 +21260,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -21580,7 +21580,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -21836,7 +21836,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "일식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 0
   },
   {
@@ -22572,7 +22572,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -22956,7 +22956,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "양식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -23260,7 +23260,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -23276,7 +23276,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -23612,7 +23612,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -24444,7 +24444,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -24956,7 +24956,7 @@
     "closed_days": "매주 토요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -25020,7 +25020,7 @@
     "closed_days": "연중무휴",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -25036,7 +25036,7 @@
     "closed_days": "매달 둘째, 넷째 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -25084,7 +25084,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -25436,7 +25436,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -25820,7 +25820,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -26316,7 +26316,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -26540,7 +26540,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -26572,7 +26572,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -29244,7 +29244,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -30012,7 +30012,7 @@
     "closed_days": "매주 수요일",
     "parking": "없음",
     "cuisine_type": "양식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 0
   },
   {
@@ -30348,7 +30348,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -31116,7 +31116,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -31180,7 +31180,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -31580,7 +31580,7 @@
     "closed_days": "매주 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -31644,7 +31644,7 @@
     "closed_days": "매주 월요일, 넷째 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -31772,7 +31772,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32204,7 +32204,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32620,7 +32620,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32732,7 +32732,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32764,7 +32764,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32780,7 +32780,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32796,7 +32796,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32812,7 +32812,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32828,7 +32828,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32860,7 +32860,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32892,7 +32892,7 @@
     "closed_days": "매주 토요일",
     "parking": "없음",
     "cuisine_type": "중식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -32972,7 +32972,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "카페",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33004,7 +33004,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33116,7 +33116,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -33148,7 +33148,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33164,7 +33164,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33244,7 +33244,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33260,7 +33260,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33276,7 +33276,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33308,7 +33308,7 @@
     "closed_days": "매주 월요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33324,7 +33324,7 @@
     "closed_days": "매주 월요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33484,7 +33484,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33820,7 +33820,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -33836,7 +33836,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -34396,7 +34396,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -34588,7 +34588,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -35324,7 +35324,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -35340,7 +35340,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -35356,7 +35356,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -35740,7 +35740,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "양식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -36060,7 +36060,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "양식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 0
   },
   {
@@ -38684,7 +38684,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -38908,7 +38908,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -38924,7 +38924,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -39116,7 +39116,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "주점",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -39292,7 +39292,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -39388,7 +39388,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -39580,7 +39580,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -40012,7 +40012,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 1
   },
   {
@@ -40028,7 +40028,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -40300,7 +40300,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -40780,7 +40780,7 @@
     "closed_days": "매주 화요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -40972,7 +40972,7 @@
     "closed_days": "매주 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -40988,7 +40988,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -41804,7 +41804,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -42156,7 +42156,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -42556,7 +42556,7 @@
     "closed_days": "매주 토요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -42748,7 +42748,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "양식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -42796,7 +42796,7 @@
     "closed_days": "매주 화요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -43516,7 +43516,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -43852,7 +43852,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "양식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 0
   },
   {
@@ -43980,7 +43980,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -44428,7 +44428,7 @@
     "closed_days": "매주 화요일",
     "parking": "있음",
     "cuisine_type": "일식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 0
   },
   {
@@ -45500,7 +45500,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "양식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -45884,7 +45884,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "양식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 0
   },
   {
@@ -46524,7 +46524,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -46716,7 +46716,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "주점",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -46972,7 +46972,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 1
   },
   {
@@ -47324,7 +47324,7 @@
     "closed_days": "매주 토요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -47500,7 +47500,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -47900,7 +47900,7 @@
     "closed_days": "매주 일요일",
     "parking": "있음",
     "cuisine_type": "양식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 0
   },
   {
@@ -48828,7 +48828,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -49148,7 +49148,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -49212,7 +49212,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -50284,7 +50284,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -51180,7 +51180,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -52380,7 +52380,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "치킨",
-    "ingredient_category": "미분류",
+    "ingredient_category": "발효·젓갈",
     "local_score": 0
   },
   {
@@ -54252,7 +54252,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -55276,7 +55276,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -55420,7 +55420,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -55452,7 +55452,7 @@
     "closed_days": "매주 토요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -56124,7 +56124,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -56572,7 +56572,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -56700,7 +56700,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -56780,7 +56780,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -57788,7 +57788,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -57884,7 +57884,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -57996,7 +57996,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -58300,7 +58300,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -58412,7 +58412,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -59116,7 +59116,7 @@
     "closed_days": "매주 목요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -59356,7 +59356,7 @@
     "closed_days": "없음",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -59404,7 +59404,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -59724,7 +59724,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -59868,7 +59868,7 @@
     "closed_days": "매주 화요일",
     "parking": "없음",
     "cuisine_type": "카페",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 0
   },
   {
@@ -60012,7 +60012,7 @@
     "closed_days": "매주 토요일, 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -60028,7 +60028,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -60380,7 +60380,7 @@
     "closed_days": "매주 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -60396,7 +60396,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -60636,7 +60636,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -61068,7 +61068,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "주점",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -61372,7 +61372,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -61564,7 +61564,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -62220,7 +62220,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -62460,7 +62460,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -63724,7 +63724,7 @@
     "closed_days": "매주 일요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -64316,7 +64316,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -65324,7 +65324,7 @@
     "closed_days": "매주 월요일",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -65868,7 +65868,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "주점",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -65900,7 +65900,7 @@
     "closed_days": "없음",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -65932,7 +65932,7 @@
     "closed_days": "상황에 따라 다름",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|채소",
+    "ingredient_category": "해산물|채소|발효·젓갈",
     "local_score": 1
   },
   {
@@ -66028,7 +66028,7 @@
     "closed_days": "상황에 따라 다름",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류|채소",
+    "ingredient_category": "해산물|육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -66780,7 +66780,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 1
   },
   {
@@ -67292,7 +67292,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -67308,7 +67308,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물|육류",
+    "ingredient_category": "해산물|육류|발효·젓갈",
     "local_score": 1
   },
   {
@@ -68172,7 +68172,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -68188,7 +68188,7 @@
     "closed_days": "매주 월요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "육류|채소",
+    "ingredient_category": "육류|채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -68204,7 +68204,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -68300,7 +68300,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -69132,7 +69132,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -69436,7 +69436,7 @@
     "closed_days": "",
     "parking": "있음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
@@ -69724,7 +69724,7 @@
     "closed_days": "매주 일요일",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "해산물",
+    "ingredient_category": "해산물|발효·젓갈",
     "local_score": 1
   },
   {
@@ -69788,7 +69788,7 @@
     "closed_days": "",
     "parking": "없음",
     "cuisine_type": "한식",
-    "ingredient_category": "채소",
+    "ingredient_category": "채소|발효·젓갈",
     "local_score": 0
   },
   {
