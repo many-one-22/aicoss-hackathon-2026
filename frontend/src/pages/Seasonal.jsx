@@ -1,11 +1,48 @@
 /* 제철 — 하단 탭바의 '제철' 창. 이번 주 제철 식재료 전체 목록.
-   각 항목 탭 시 산지·시세 상세로 이동. */
+   각 항목 탭 시 산지·시세 상세로 이동.
+   [디자인] 크림 프레임 썸네일 · 가격 위계(이름/큰가격/등락칩) · 등락 배지 색 위계 ·
+            원형 날짜 컨트롤 · 가이드 배너 · 미니 스파크라인. */
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight, ChevronLeft } from 'lucide-react'
+import { ChevronRight, ChevronLeft, ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
 import * as api from '../api/client.js'
 import { imageForIngredient } from '../lib/categoryImage.js'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
+
+/* 상태 태그(저렴/평균/비쌈) — 저렴은 딥그린, 비쌈은 테라코타, 그 외는 웜그레이. */
+function StatusTag({ level }) {
+  const cls =
+    level === '저렴'
+      ? 'bg-green/10 text-green'
+      : level === '비쌈'
+        ? 'bg-terra/10 text-terra'
+        : 'bg-[#EFEAE0] text-muted-soft'
+  return (
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${cls}`}>
+      {level}
+    </span>
+  )
+}
+
+/* 등락률 칩 — 하락(저렴해짐)=그린, 상승(비싸짐)=테라코타, 보합=그레이. 화살표 아이콘 포함. */
+function TrendChip({ label, pct }) {
+  if (pct == null) return null
+  const down = pct < 0
+  const up = pct > 0
+  const Icon = down ? ArrowDownRight : up ? ArrowUpRight : Minus
+  const cls = down
+    ? 'bg-season text-seasonink'
+    : up
+      ? 'bg-terra/10 text-terra'
+      : 'bg-line/50 text-muted'
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${cls}`}>
+      <span className="font-medium opacity-70">{label}</span>
+      <Icon size={12} strokeWidth={2.4} />
+      {pct === 0 ? '보합' : `${Math.abs(pct)}%`}
+    </span>
+  )
+}
 
 export default function Seasonal() {
   const [seasonal, setSeasonal] = useState([])
@@ -37,17 +74,18 @@ export default function Seasonal() {
         <span className="ml-auto text-[12px] text-muted">KAMIS 실측 · 오늘 기준</span>
       </header>
 
-      <div className="px-5 pb-1 pt-4">
+      {/* 날짜 컨트롤러 — 원형 서브 버튼 */}
+      <div className="px-5 pt-4">
         <div className="flex flex-col items-center leading-tight">
-          <span className="text-[14px] font-semibold text-muted-soft">{year}년</span>
-          <div className="mt-0.5 flex items-center justify-center gap-3">
+          <span className="text-[13px] font-semibold text-muted-soft">{year}년</span>
+          <div className="mt-1 flex items-center justify-center gap-3">
             <button
               onClick={prevMonth}
               disabled={!canPrev}
               aria-label="이전 달"
-              className="grid h-9 w-9 place-items-center rounded-full text-muted transition disabled:opacity-25 active:bg-line/40"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-muted shadow-sm transition disabled:opacity-30 active:bg-cream"
             >
-              <ChevronLeft size={22} />
+              <ChevronLeft size={16} />
             </button>
             <h1 className="text-center font-brand text-[18px] font-extrabold text-ink">
               {month}월, {loc ? loc.city : '남도'}의 제철
@@ -56,82 +94,62 @@ export default function Seasonal() {
               onClick={nextMonth}
               disabled={!canNext}
               aria-label="다음 달"
-              className="grid h-9 w-9 place-items-center rounded-full text-muted transition disabled:opacity-25 active:bg-line/40"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-muted shadow-sm transition disabled:opacity-30 active:bg-cream"
             >
-              <ChevronRight size={22} />
+              <ChevronRight size={16} />
             </button>
           </div>
         </div>
-        <p className="mt-1 text-center text-[13px] text-muted">
-          {offset === 0
-            ? '가장 맛있고 저렴한 때예요 · 탭하면 12개월 시세를 볼 수 있어요'
-            : `${month}월 제철 식재료와 그달 시세예요`}
-        </p>
       </div>
 
+      {/* 가이드 배너 — 연한 아이보리 박스 */}
+      <div className="mx-5 mt-3 rounded-xl bg-[#F5F2EB] px-3.5 py-2 text-center text-[12px] text-muted-soft">
+        {offset === 0
+          ? '지금이 가장 맛있고 저렴한 때 · 탭하면 12개월 시세를 볼 수 있어요'
+          : `${month}월 제철 식재료와 그달 시세예요`}
+      </div>
+
+      {/* 리스트 */}
       <div className="flex flex-col gap-2.5 px-5 py-4">
         {seasonal.map((s) => {
-          const buyNow = s.level === '저렴'
-          const won = (s.current ?? 0).toLocaleString('ko-KR')
+          const won = Math.round(s.current ?? 0).toLocaleString('ko-KR')
+          const timeLabel = s.month === thisMonth ? '오늘' : `${s.month}월`
           return (
             <Link
               key={s.id}
               to={`/ingredient/${s.id}`}
-              className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3"
+              className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-sm transition active:scale-[0.99] active:bg-cream"
             >
-              <PlaceholderImage
-                src={imageForIngredient(s.item)}
-                alt={s.item}
-                label={s.item}
-                className="h-16 w-16 shrink-0 rounded-xl text-[11px]"
-              />
+              {/* 썸네일 — 크림 프레임(제각각 크롭도 안정된 카드 룩) */}
+              <div className="shrink-0 rounded-2xl bg-[#F5F2EB] p-1.5">
+                <PlaceholderImage
+                  src={imageForIngredient(s.item)}
+                  alt={s.item}
+                  label={s.item}
+                  className="h-14 w-14 rounded-xl text-[11px]"
+                />
+              </div>
+
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <b className="truncate text-[16px] font-bold text-ink">{s.item}</b>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                    s.level === '저렴'
-                      ? 'bg-green/10 text-green'
-                      : s.level === '비쌈'
-                        ? 'bg-red-500/10 text-red-600'
-                        : 'bg-line/60 text-muted'
-                  }`}>
-                    {s.level}
+                {/* 1열: 이름 + 상태 태그 */}
+                <div className="flex items-center gap-1.5">
+                  <b className="truncate font-brand text-[16px] font-bold text-ink">{s.item}</b>
+                  <StatusTag level={s.level} />
+                </div>
+                {/* 2열: 큰 오늘 가격 + 단위 */}
+                <div className="mt-0.5 flex items-baseline gap-1">
+                  <span className="text-[19px] font-extrabold text-ink">{won}원</span>
+                  {s.unit && <span className="text-[12px] text-muted-soft">/ {s.unit}</span>}
+                  <span className="ml-1 text-[11px] text-muted-soft">
+                    {s.region} · {timeLabel}
                   </span>
                 </div>
-                <span className="block text-[12px] text-muted">
-                  {s.region} · {s.month === thisMonth ? '오늘' : `${s.month}월`} {won}원{s.unit ? `/${s.unit}` : ''}
-                </span>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[12px] font-semibold">
-                  <span
-                    className={
-                      s.vsAvgPct < 0 ? 'text-seasonink' : s.vsAvgPct > 0 ? 'text-terra' : 'text-muted'
-                    }
-                  >
-                    {s.vsAvgPct < 0
-                      ? `연평균比 ${Math.abs(s.vsAvgPct)}%↓`
-                      : s.vsAvgPct > 0
-                        ? `연평균比 ${s.vsAvgPct}%↑`
-                        : '연평균 수준'}
-                  </span>
-                  {s.wowPct != null && (
-                    <>
-                      <span className="text-line">·</span>
-                      <span
-                        className={
-                          s.wowPct < 0 ? 'text-seasonink' : s.wowPct > 0 ? 'text-terra' : 'text-muted'
-                        }
-                      >
-                        {s.wowPct < 0
-                          ? `전월比 ${Math.abs(s.wowPct)}%↓`
-                          : s.wowPct > 0
-                            ? `전월比 ${s.wowPct}%↑`
-                            : '전월 보합'}
-                      </span>
-                    </>
-                  )}
+                {/* 3열: 등락 칩 */}
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <TrendChip label="연평균" pct={s.vsAvgPct} />
+                  <TrendChip label="전월" pct={s.wowPct} />
                 </div>
               </div>
-              <ChevronRight size={18} className="shrink-0 text-muted-soft" />
             </Link>
           )
         })}
