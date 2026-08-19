@@ -46,33 +46,79 @@ _FILLER_WORDS = [
 ]
 
 
-# "A 말고 B", "A 대신 B" 같은 대조 표현. KoSBERT는 문장 임베딩 특성상 이런 부정/대조 표현을
-# 잘 구분 못 해서, "감자 말고 전복"처럼 두 명사가 점수상 박빙이 되면 컴퓨터/실행마다
-# 미세한 부동소수점 차이로 순위가 뒤집히는 불안정한 상황이 생길 수 있다(실제로 재현됨).
-# 검색어 자체에서 부정된 앞부분(A)을 아예 잘라내, 뒷부분(B)만 KoSBERT에 넘겨서 이 문제를 없앤다.
-_CONTRASTIVE_WORDS = ["말고", "대신"]
+# "A 말고 B", "A 대신 B", "A가 아니라 B", "A보다는 B" 같은 대조 표현. KoSBERT는 문장 임베딩
+# 특성상 이런 부정/대조 표현을 잘 구분 못 해서, "감자 말고 전복"처럼 두 명사가 점수상 박빙이
+# 되면 컴퓨터/실행마다 미세한 부동소수점 차이로 순위가 뒤집히는 불안정한 상황이 생길 수 있다
+# (실제로 재현됨). 검색어 자체에서 부정된 앞부분(A)을 아예 잘라내, 뒷부분(B)만 KoSBERT에
+# 넘겨서 이 문제를 없앤다.
+_CONTRASTIVE_WORDS = ["말고", "대신", "아니라", "아니고", "보다는"]
+
+# "전복 싫은데"처럼 대안 없이 순수하게 거부만 하는 표현.
+# ⚠️ [수정 이력] retrieve.py에 이미 _parse_exclude()라는 "재료+부정어" 패턴 인식 로직이
+# 있다는 걸 확인함. 예전엔 여기서 순수 거부 표현이면 query=None을 넘겨서 KoSBERT 랭킹을
+# 건너뛰게 했었는데, 이러면 retrieve.py의 _parse_exclude(query)도 None을 받아서
+# "재료+부정어" 패턴 자체를 못 찾게 되어 제외 로직이 통째로 안 먹혔다
+# ("전복 싫어"/"해산물 싫어"가 둘 다 그냥 최상위 인기 식당만 나오는 버그로 나타남).
+# retrieve.py가 원문을 보고 알아서 제외하므로, 여기서는 원문을 보존해서 그대로 넘긴다.
+_NEGATION_WORDS = [
+    "싫",
+    "안 먹", "안먹",
+    "못 먹", "못먹",
+    "빼고", "빼줘", "빼주세요",
+    "제외",
+    "알레르기",
+    "비추",
+    "안돼", "안 돼",
+    "별로",
+    "극혐",
+    "안 좋아", "안좋아",
+    "꺼려",
+    "기피",
+]
+
+
+def _strip_fillers(text: str) -> str:
+    cleaned = text
+    for w in _FILLER_WORDS:
+        cleaned = cleaned.replace(w, " ")
+    return " ".join(cleaned.split())
 
 
 def _clean_query(q: str) -> str:
     """대조 표현 처리 + 필러 단어 제거.
-    다 지워서 빈 문자열이 되면 원본 그대로 반환 (안전장치)."""
-    cleaned = q
-
-    # 1) "A 말고 B" / "A 대신 B" → A는 버리고 B만 남긴다
+    순수 거부 표현("전복 싫어")은 재료·부정어를 지우지 않고 그대로 둔다 —
+    retrieve.py의 _parse_exclude()가 원문에서 직접 그 패턴을 찾아 제외하기 때문."""
+    # 1) "A 말고 B" 류 대조 표현 → A는 버리고 B만 남긴다
+    #    (이건 원문을 남길 필요 없음: A 자체가 검색어에서 사라지니 retrieve.py가
+    #    몰라도 상관없고, B만으로 검색하면 원하는 결과가 나옴)
     for w in _CONTRASTIVE_WORDS:
-        idx = cleaned.find(w)
+        idx = q.find(w)
         if idx != -1:
-            cleaned = cleaned[idx + len(w):]
-            break  # 여러 개 겹치는 경우는 드물어서 첫 번째만 처리
+            cleaned = _strip_fillers(q[idx + len(w):])
+            return cleaned if cleaned else q
 
-    # 2) 필러 단어 제거
-    for w in _FILLER_WORDS:
-        cleaned = cleaned.replace(w, " ")
-    cleaned = " ".join(cleaned.split())
+    # 2) 그 외(순수 거부 포함)엔 필러 단어만 제거, 부정어/재료는 원문 그대로 유지
+    cleaned = _strip_fillers(q)
     return cleaned if cleaned else q
 
 app = FastAPI(title="남도식탁 KoSBERT 챗봇")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+@app.on_event("startup")
+def _warmup():
+    """서버 뜨자마자 KoSBERT 랭커를 미리 로드해둔다.
+    [수정 이력] 이게 없으면 서버 재시작 후 첫 실제 질문 때 모델 로딩(81MB+400MB)이
+    같이 일어나는데, 이게 프론트(chatbot.js)의 fetchKosbert() 8초 타임아웃을 넘기는
+    경우가 있었다. 그러면 조용히 실패해서 로컬 폴백으로 넘어가버리고, 사용자는
+    "KoSBERT 의미검색"이 한 번도 안 붙는 것처럼(백엔드가 항상 실패하는 것처럼) 보였다.
+    오늘 여러 번 서버를 재시작하며 테스트할 때마다 이 문제를 겪었을 가능성이 높음."""
+    print("[정보] 검색 랭커 워밍업 중... (81MB+400MB, 시간 좀 걸릴 수 있음)")
+    try:
+        retrieve(query="워밍업", filters={}, top_n=1)
+        print("[정보] 워밍업 완료 — 이제 첫 질문부터 빠르게 응답함")
+    except Exception as e:
+        print(f"[경고] 워밍업 실패 (첫 요청이 느릴 수 있음): {e}")
 
 
 def _poi_map(rowids):
@@ -122,6 +168,28 @@ def _card(r, poi_id):
     }
 
 
+def _seems_understood(q: str, cleaned_q: str, cards: list) -> bool:
+    """질의를 실제로 이해했는지에 대한 대략적인 신호 (완벽한 판별은 불가능).
+
+    ⚠️ 로컬(chatbot.js)의 isUnderstood()와 접근 자체가 다르다: 로컬은 순수 키워드/태그
+    매칭이라 "매칭 없음 = 이해 못 함"이 거의 확실하지만, KoSBERT는 의미 기반이라
+    리터럴 매칭이 없어도 맞는 답일 수 있다(예: "얼큰한 국물" → "매운탕"). 그래서
+    이 함수는 결과를 지우는 데 쓰지 않고, 프론트가 참고할 신뢰도 신호로만 반환한다.
+
+    판단 기준: 부정어(_NEGATION_WORDS)가 있으면 뭔가는 인식한 것 → True.
+    그 외엔 cleaned_q의 단어가 결과 중 하나라도 메뉴/상호에 리터럴로 있으면 True."""
+    if any(w in q for w in _NEGATION_WORDS):
+        return True
+    kws = [t for t in cleaned_q.split() if len(t) >= 2]
+    if not kws:
+        return False
+    for c in cards:
+        hay = (c.get("name") or "") + (c.get("desc") or "")
+        if any(k in hay for k in kws):
+            return True
+    return False
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "db": str(DB), "db_exists": DB.exists()}
@@ -129,13 +197,17 @@ def health():
 
 @app.get("/chat")
 def chat(q: str, region: Optional[str] = None, top_n: int = 4):
-    """자연어 q(+선택 region) → KoSBERT 의미검색 상위 top_n 식당(카드 전체정보)."""
+    """자연어 q(+선택 region) → KoSBERT 의미검색 상위 top_n 식당(카드 전체정보).
+    "전복 싫어" 같은 순수 거부 표현의 실제 제외 처리는 retrieve.py의 _parse_exclude()가 담당.
+    "understood"는 신뢰도 참고용 신호일 뿐, 결과 자체를 지우지는 않는다(위 docstring 참고)."""
     cleaned_q = _clean_query(q)
     res = retrieve(query=cleaned_q, filters={"region": region} if region else None, top_n=top_n)
     poi = _poi_map([r["rowid"] for r in res])
+    cards = [_card(r, poi.get(r["rowid"])) for r in res]
     return {
         "query": q,
         "cleaned_query": cleaned_q,
         "engine": "KoSBERT",
-        "results": [_card(r, poi.get(r["rowid"])) for r in res],
+        "understood": _seems_understood(q, cleaned_q, cards),
+        "results": cards,
     }

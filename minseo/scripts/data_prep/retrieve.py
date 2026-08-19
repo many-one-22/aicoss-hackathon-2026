@@ -61,23 +61,44 @@ def _as_list(v):
 # 부정어 처리 — "전복 싫은데"처럼 재료 뒤에 부정어가 오면 그 재료를 결과에서 뺀다.
 # (KoSBERT 임베딩은 부정을 못 잡아 오히려 '전복'을 상위로 올리므로 명시적으로 제외한다.)
 _NEG_CUES = ("싫", "말고", "빼고", "빼줘", "빼주", "빼서", "뺀", "없이",
-             "제외", "별로", "아니", "못 먹", "못먹", "알레르기", "알러지")
+             "제외", "별로", "아니", "못 먹", "못먹", "알레르기", "알러지",
+             "대신", "보다는", "극혐", "꺼려", "기피", "안 좋아", "안좋아", "안돼", "안 돼")
+
+# 구체적인 재료명(메뉴 텍스트에 실제로 등장하는 단어들) — menu+place 문자열에서 직접 찾아 제외.
 _EXCLUDABLE = (
     "전복", "꼬막", "조개", "굴", "홍합", "바지락", "소라", "골뱅이", "새우", "꽃게", "게장",
     "낙지", "오징어", "문어", "주꾸미", "장어", "갈치", "고등어", "홍어", "매생이",
     "삼겹", "돼지", "오리", "한우", "회",
+    "감자", "고구마", "두부", "버섯", "가지", "호박",  # 해산물·육류 외 일반 재료 (예: "감자 말고 전복")
 )
+
+# 카테고리 단어("해산물"/"육류"/"채소") — 메뉴 텍스트엔 이 단어 자체가 거의 안 나와서
+# (예: 메뉴에 "해산물"이라 안 쓰고 "전복죽"이라고 씀) _EXCLUDABLE 방식(문자열 포함 검색)으론
+# 못 걸러진다. ingredient_category 필드(DB에 미리 분류되어 있는 컬럼)로 따로 걸러야 함.
+_CATEGORY_EXCLUDABLE = ("해산물", "육류", "채소")
+
+# 정식 카테고리명 대신 흔히 쓰는 구어체 → 카테고리 매핑.
+# [수정 이력] "고기 싫어"가 _CATEGORY_EXCLUDABLE엔 "육류"만 있어서 안 걸리던 버그 수정
+# (chatbot.js에서 먼저 발견된 것과 동일한 문제 — "고기 싫어"라고 했는데 한우집을 추천했음).
+_CATEGORY_SYNONYMS = {"고기": "육류", "생선": "해산물", "야채": "채소", "나물": "채소"}
 
 
 def _parse_exclude(query):
-    """query에서 '재료 뒤 부정어'(전복 싫은데) 패턴을 찾아 제외할 재료 리스트를 반환."""
+    """query에서 '재료 뒤 부정어'(전복 싫은데) 패턴을 찾아 제외할 재료 리스트를 반환.
+    (item, category) 두 리스트로 나눠 반환 — 필터링 방식이 서로 다르기 때문."""
     if not query:
-        return []
+        return [], []
     neg_pos = [query.find(c) for c in _NEG_CUES if c in query]
     if not neg_pos:
-        return []
-    return [ing for ing in _EXCLUDABLE
-            if query.find(ing) >= 0 and any(np > query.find(ing) for np in neg_pos)]
+        return [], []
+    item_exclude = [ing for ing in _EXCLUDABLE
+                     if query.find(ing) >= 0 and any(np > query.find(ing) for np in neg_pos)]
+    category_exclude = {cat for cat in _CATEGORY_EXCLUDABLE
+                         if query.find(cat) >= 0 and any(np > query.find(cat) for np in neg_pos)}
+    for syn, cat in _CATEGORY_SYNONYMS.items():
+        if query.find(syn) >= 0 and any(np > query.find(syn) for np in neg_pos):
+            category_exclude.add(cat)
+    return item_exclude, list(category_exclude)
 
 
 def retrieve(query=None, filters=None, top_n=10, exclude_chain=True):
@@ -93,11 +114,15 @@ def retrieve(query=None, filters=None, top_n=10, exclude_chain=True):
     )
     # 향토음식점(한식)만 추천 — 카페·주점·양식 등은 컨셉에 안 맞아 제외
     cands = [c for c in cands if c.get("cuisine_type") == "한식"]
-    # 사용자가 싫다고 한 재료가 든 곳은 제외한다("전복 싫은데" → 전복집 제외)
-    exclude = _parse_exclude(query)
-    if exclude:
+    # 사용자가 싫다고 한 재료/카테고리가 든 곳은 제외한다
+    # ("전복 싫은데" → 전복집 제외, "해산물 싫은데" → 해산물 카테고리 전체 제외)
+    item_exclude, category_exclude = _parse_exclude(query)
+    if item_exclude:
         cands = [c for c in cands
-                 if not any(ing in ((c.get("menu") or "") + (c.get("place") or "")) for ing in exclude)]
+                 if not any(ing in ((c.get("menu") or "") + (c.get("place") or "")) for ing in item_exclude)]
+    if category_exclude:
+        cands = [c for c in cands
+                 if not any(cat in (c.get("ingredient_category") or "") for cat in category_exclude)]
     # 같은 집이 두 POI_id로 중복될 수 있어 1곳만 남긴다.
     # 주소 끝에 상호가 덧붙거나 공백이 달라도 같은 곳으로 보게 정규화(상호·공백 제거).
     seen, uniq = set(), []
@@ -116,7 +141,10 @@ def retrieve(query=None, filters=None, top_n=10, exclude_chain=True):
         pos = {rid: i for i, rid in enumerate(order)}
         # 짧은 단어 질의 보정 — KoSBERT는 단어 1개면 임베딩이 약해 랭킹이 흐려진다.
         # 질의어가 메뉴·상호에 직접 있으면 임베딩보다 우선(리터럴 신호로 보완).
-        kws = [t for t in query.split() if len(t) >= 2]
+        # 부정어(_NEG_CUES)는 키워드 매칭에서 빼야 함 — 안 그러면 메뉴에 우연히 "싫어" 같은
+        # 글자가 들어간 식당(예: "양념 싫어 세트" 같은 장난스러운 메뉴명)이 리터럴 매칭 보너스를
+        # 받아서 엉뚱하게 1등으로 뜨는 문제가 생김(실제로 재현됨).
+        kws = [t for t in query.split() if len(t) >= 2 and not any(neg in t for neg in _NEG_CUES)]
 
         def _lex_hit(c):
             hay = (c.get("menu") or "") + (c.get("place") or "")
