@@ -86,18 +86,27 @@ def build_forecasts(periods=6, min_months=24, max_mape=20.0):
         series = _load_series(item, region)
         mape = _backtest_mape(series, periods)
         if mape >= max_mape:  # 부정확 → 서비스에서 제외
-            dropped.append((item, round(mape, 1)))
+            dropped.append((item, f"MAPE {round(mape, 1)}%"))
             continue
-        for r in _fit_predict(series, periods):
+        fc = _fit_predict(series, periods)
+        # 정상성 체크 — 굴처럼 여름 0원인 계절상품은 MAPE는 통과해도 앞으로 예측이
+        # 0원·비현실적 급등으로 튄다. 예측에 0원 이하가 있거나 실제 최대가의 2.5배를
+        # 넘는 값이 하나라도 있으면 믿을 수 없으니 제외한다.
+        hist_max = max(p for _, p in series)
+        yhats = [r["yhat"] for r in fc]
+        if min(yhats) <= 0 or max(yhats) > hist_max * 2.5:
+            dropped.append((item, "예측 불안정"))
+            continue
+        for r in fc:
             con.execute("INSERT INTO price_forecast VALUES (?,?,?,?,?,?,?)",
                         (item, region, r["year_month"], r["yhat"],
                          r["yhat_lower"], r["yhat_upper"], round(mape, 1)))
         kept += 1
     con.commit()
     con.close()
-    print(f"예측 저장: {kept}/{len(pairs)}개 재료 (MAPE<{max_mape}%) × {periods}개월")
+    print(f"예측 저장: {kept}/{len(pairs)}개 재료 (MAPE<{max_mape}% + 정상성 통과) × {periods}개월")
     if dropped:
-        print(f"제외(부정확): {', '.join(f'{i}({m}%)' for i, m in dropped)}")
+        print(f"제외: {', '.join(f'{i}({m})' for i, m in dropped)}")
     return kept
 
 
