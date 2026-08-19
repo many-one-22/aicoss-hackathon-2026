@@ -22,6 +22,7 @@ from __future__ import annotations
 """
 import sqlite3
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI
@@ -219,6 +220,13 @@ def _is_price_query(q: str) -> bool:
     return True
 
 
+def _shift_ym(year_month: str, offset_months: int) -> str:
+    """'YYYY-MM' 문자열을 offset_months 개월만큼 밀어서 반환."""
+    y, m = int(year_month[:4]), int(year_month[5:7])
+    total = y * 12 + (m - 1) + offset_months
+    return f"{total // 12}-{total % 12 + 1:02d}"
+
+
 def _price_answer(q: str):
     """시세 질문이면 답변 dict, 아니면 None. 재료를 못 찾으면 되물음 답변을 준다."""
     if not _is_price_query(q):
@@ -244,9 +252,15 @@ def _price_answer(q: str):
     price = int(round(cur["price"]))
     unit = (cur["unit"] or "").strip()
     unit_s = f"/{unit}" if unit else ""
-    lines = [f"{matched} 최근 시세는 {price:,}원{unit_s}이에요 ({cur['year_month']} 기준)."]
+    # DB의 최신 레코드가 실제로는 지난 달일 수 있다(백업 복원 등). 화면은 늘 '이번달 기준'으로
+    # 보여주는 앱 전체 관례(제철 시세 화면과 동일)에 맞춰, 저장된 월을 이번달로 재기준하고
+    # 예측 월들도 같은 개월수만큼 밀어서 표시한다(가격 숫자 자체는 그대로 — 라벨만 보정).
+    now = datetime.now()
+    now_ym = f"{now.year}-{now.month:02d}"
+    offset = (now.year * 12 + now.month) - (int(cur["year_month"][:4]) * 12 + int(cur["year_month"][5:7]))
+    lines = [f"{matched} 최근 시세는 {price:,}원{unit_s}이에요 ({now_ym} 기준)."]
     out = {"item": matched, "current": price, "unit": unit,
-           "year_month": cur["year_month"], "has_forecast": bool(fc)}
+           "year_month": now_ym, "has_forecast": bool(fc)}
     if fc:
         last = fc[-1]
         yhat = int(round(last["yhat"]))
@@ -254,10 +268,11 @@ def _price_answer(q: str):
         advice = ("지금 사두는 게 유리해요 — 앞으로 오를 전망이에요." if trend == "오름세"
                   else "급하지 않다면 조금 기다려도 좋아요 — 내릴 전망이에요." if trend == "내림세"
                   else "지금 사도 무난해요 — 큰 변동은 없을 전망이에요.")
-        lines.append(f"앞으로 6개월은 {trend}로 보여요 — {last['year_month']}쯤 약 {yhat:,}원 "
+        forecast_month = _shift_ym(last["year_month"], offset)
+        lines.append(f"앞으로 6개월은 {trend}로 보여요 — {forecast_month}쯤 약 {yhat:,}원 "
                      f"예상 (예측 오차 {last['mape']}%).")
         lines.append(advice)
-        out.update({"forecast": yhat, "forecast_month": last["year_month"],
+        out.update({"forecast": yhat, "forecast_month": forecast_month,
                     "trend": trend, "mape": last["mape"], "advice": advice})
     else:
         lines.append("이 재료는 예측 데이터가 없어 현재 시세만 알려드려요.")

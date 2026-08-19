@@ -30,7 +30,7 @@ export default function Favorites() {
         <Link to="/" aria-label="홈" className="grid h-9 w-9 place-items-center">
           <ChevronLeft size={22} />
         </Link>
-        <span className="ml-1 text-[18px] font-bold text-ink">찜한 장소</span>
+        <span className="ml-1 font-brand text-[18px] font-extrabold text-ink">찜한 장소</span>
         <span className="ml-auto text-[13px] text-muted">{favRestaurants.length}곳</span>
       </header>
 

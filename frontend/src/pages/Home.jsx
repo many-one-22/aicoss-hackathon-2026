@@ -57,7 +57,10 @@ export default function Home() {
   }, [loc.city, loc.region, loc.lat, loc.lng]);
 
   // 로딩(데이터/찜 변경)마다 한 번만 계산 — 재렌더로 깜빡이지 않게 메모이즈
-  const favRestaurants = useMemo(() => all.filter((r) => ids.includes(r.id)), [all, ids]);
+  const favRestaurants = useMemo(
+    () => all.filter((r) => ids.includes(r.id)),
+    [all, ids],
+  );
   const recos = useMemo(
     () => recommendByFavorites(favRestaurants, all, 3, loc),
     [favRestaurants, all, loc],
@@ -69,8 +72,8 @@ export default function Home() {
       <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-line bg-cream px-5">
         <Logo row size={30} />
         <span className="ml-auto flex items-center gap-1 text-[12px] text-muted">
-          <MapPin size={13} className="text-terra" fill="#C85227" />
-          <b className="font-bold text-terra">{loc.city}</b>
+          <MapPin size={18} className="text-terra" fill="#F2993E" />
+          <b className="font-brand text-[15px] font-bold text-terra">{loc.city}</b>
         </span>
         <Link
           to="/favorites"
@@ -79,11 +82,11 @@ export default function Home() {
         >
           <Heart
             size={22}
-            className="text-[#C85227]"
-            fill={ids.length ? '#C85227' : 'transparent'}
+            className="text-terra"
+            fill={ids.length ? '#F2993E' : 'transparent'}
           />
           {ids.length > 0 && (
-            <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-[#C85227] px-1 text-[10px] font-bold text-white">
+            <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-terra px-1 text-[10px] font-bold text-white">
               {ids.length}
             </span>
           )}
@@ -92,13 +95,13 @@ export default function Home() {
 
       {/* 검색 프롬프트 */}
       <div className="relative mx-5 mt-4 rounded-2xl border border-line bg-white px-4 py-3.5 text-[14px] text-ink">
-        지금 {loc.city} 계시죠? 오늘은 이 집 어때요?
+        지금 {loc.city} 계시죠? 오늘은 이런 식재료는 어때요?
         <span className="absolute -bottom-[6px] right-4 h-3 w-3 rotate-45 border-b border-r border-line bg-white" />
       </div>
 
       {/* 리드 — 아래 오늘의 제철 카드의 제목 */}
-      <div className="px-5 pb-1 pt-4">
-        <h1 className="font-brand text-[18px] font-extrabold tracking-tight text-ink">
+      <div className="pl-9 pr-5 pt-7">
+        <h1 className="font-brand text-[24px] font-extrabold tracking-tight text-ink">
           추천 제철
         </h1>
       </div>
@@ -107,7 +110,7 @@ export default function Home() {
       {todayItem?.item && (
         <div
           onClick={() => navigate(`/ingredient/${todayItem.item.id}`)}
-          className="mx-5 mt-3 block cursor-pointer overflow-hidden rounded-2xl border border-line bg-white shadow-card active:bg-cream"
+          className="mx-5 mt-1 block cursor-pointer overflow-hidden rounded-2xl border border-line bg-white shadow-card active:bg-cream"
         >
           <div className="relative aspect-[25/16]">
             <PlaceholderImage
@@ -116,24 +119,31 @@ export default function Home() {
               label={todayItem.item.item}
               className="h-full w-full text-[13px]"
             />
-            <span className="absolute left-3.5 top-3.5 rounded-full bg-terra px-2.5 py-1 text-[12px] font-bold text-white">
+            <span className="absolute left-3.5 top-3.5 rounded-2xl bg-terra px-3.5 py-1.5 font-brand text-[14px] font-extrabold text-white">
               오늘의 제철
             </span>
           </div>
           <div className="flex flex-col gap-1.5 px-4 pb-4 pt-3.5">
-            <h3 className="font-brand text-[20px] font-extrabold text-ink">
-              {todayItem.item.item}
-            </h3>
-            <span className="text-[13px] text-muted">
-              {todayItem.item.level === '저렴' && <b className="text-terra">지금 저렴 · </b>}
-              {todayItem.item.current != null
-                ? `${Math.round(todayItem.item.current).toLocaleString()}원/${todayItem.item.unit}`
-                : todayItem.item.region}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-brand text-[20px] font-extrabold text-ink">
+                {todayItem.item.item}
+              </h3>
+              {todayItem.item.level === '저렴' && (
+                <span className="rounded-xl bg-terra/15 px-2.5 py-1 text-[13px] font-extrabold text-terra">
+                  지금 저렴
+                </span>
+              )}
+              <span className="text-[13px] text-muted">
+                {todayItem.item.current != null
+                  ? `${Math.round(todayItem.item.current).toLocaleString()}원/${todayItem.item.unit}`
+                  : todayItem.item.region}
+              </span>
+            </div>
             {todayItem.market && (
               <span className="text-[12px] text-muted-soft">
                 {todayItem.market.name}
-                {todayItem.market._distKm != null && ` · ${todayItem.market._distKm}km`}
+                {todayItem.market._distKm != null &&
+                  ` · ${todayItem.market._distKm}km`}
               </span>
             )}
             <button
@@ -141,7 +151,7 @@ export default function Home() {
                 e.stopPropagation();
                 if (todayItem.market) openNaverMarket(todayItem.market);
               }}
-              className="mt-1 rounded-xl bg-[#D5EBDE] py-3 text-center text-[14px] font-extrabold text-olive"
+              className="mt-1 rounded-xl bg-[#D5EBDE] py-3 text-center font-brand text-[16px] font-extrabold text-olive"
             >
               시장 가는 길
             </button>
@@ -172,7 +182,7 @@ export default function Home() {
             <Heart size={17} className="text-terra" fill="#F2993E" />
           </span>
           <div className="min-w-0">
-            <b className="block text-[14px] font-bold text-ink">
+            <b className="block font-brand text-[14px] font-bold text-ink">
               마음에 드는 곳에 하트를 눌러보세요
             </b>
             <span className="text-[12px] text-muted">
@@ -182,21 +192,28 @@ export default function Home() {
         </div>
       )}
 
+      {/* 구분선 — 헤더 밑의 얇은 라인과 같은 결. 위 섹션과 간격을 더 둔다. */}
+      <div className="mx-5 mt-6 border-t border-line" />
+
       {/* 오늘의 제철 재료를 메뉴로 쓰는 근처 식당 (드래그 가로 스크롤) */}
       {todayItem?.item && todayItem.restaurants?.length > 0 && (
         <>
-          <div className="flex items-end justify-between px-5 pb-1.5 pt-5">
-            <div>
-              <span className="text-[12px] text-muted-soft">
-                {loc.city} 기준 · 밀어서 더 보기
-              </span>
-              <h2 className="mt-0.5 font-brand text-[19px] font-extrabold text-ink">
+          <div className="px-5 pb-1.5 pt-5">
+            <span className="text-[12px] text-muted-soft">
+              {loc.city} 기준 · 밀어서 더 보기
+            </span>
+            {/* h2와 링크를 같은 줄에 두고 baseline으로 맞춰 — 글자 크기가 달라도 글씨 밑선이 정확히 일치 */}
+            <div className="mt-0.5 flex items-baseline justify-between">
+              <h2 className="font-brand text-[19px] font-extrabold text-ink">
                 {withSubjectParticle(todayItem.item.item)} 들어가는 식당
               </h2>
+              <Link
+                to="/market"
+                className="shrink-0 text-[12px] font-semibold text-terra"
+              >
+                음식점 보기 →
+              </Link>
             </div>
-            <Link to="/market" className="shrink-0 text-[12px] font-semibold text-terra">
-              음식점 보기 →
-            </Link>
           </div>
           <div
             ref={seasonalDrag.ref}
@@ -218,11 +235,19 @@ function SeasonalRestaurantCard({ r }) {
   const photoSrc = useRestaurantPhoto(r);
   return (
     <Link to={`/place/${r.id}`} className="w-[150px] shrink-0">
-      <PlaceholderImage src={photoSrc} alt={r.name} className="h-24 w-full rounded-xl text-[11px]" />
-      <b className="mt-2 block truncate font-brand text-[14px] font-bold text-ink">{r.name}</b>
+      <PlaceholderImage
+        src={photoSrc}
+        alt={r.name}
+        className="h-24 w-full rounded-xl text-[11px]"
+      />
+      <b className="mt-2 block truncate font-brand text-[14px] font-bold text-ink">
+        {r.name}
+      </b>
       <span className="block truncate text-[12px] text-muted">
         {r.city} · {r.key}
-        {r._distKm != null && <span className="font-semibold text-terra"> · {r._distKm}km</span>}
+        {r._distKm != null && (
+          <span className="font-semibold text-terra"> · {r._distKm}km</span>
+        )}
       </span>
     </Link>
   );

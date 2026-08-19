@@ -2,13 +2,14 @@
    각 항목 탭 시 산지·시세 상세로 이동.
    [디자인] 크림 프레임 썸네일 · 가격 위계(이름/큰가격/등락칩) · 등락 배지 색 위계 ·
             원형 날짜 컨트롤 · 가이드 배너 · 미니 스파크라인. */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight, ChevronLeft, ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
 import * as api from '../api/client.js'
 import { imageForIngredient } from '../lib/categoryImage.js'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
 import { LogoMark } from '../components/Logo.jsx'
+import { CATEGORIES, categoryOf } from '../data/seasonalCategory.js'
 
 /* 상태 태그(저렴/평균/비쌈) — 저렴은 딥그린, 비쌈은 테라코타, 그 외는 웜그레이. */
 function StatusTag({ level }) {
@@ -19,7 +20,7 @@ function StatusTag({ level }) {
         ? 'bg-terra/10 text-terra'
         : 'bg-[#EFEAE0] text-muted-soft'
   return (
-    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${cls}`}>
+    <span className={`shrink-0 rounded-full px-2 py-0.5 font-brand text-[11px] font-bold ${cls}`}>
       {level}
     </span>
   )
@@ -51,6 +52,7 @@ export default function Seasonal() {
   const thisMonth = new Date().getMonth() + 1
   const thisYear = new Date().getFullYear()
   const [offset, setOffset] = useState(0) // 0=이번 달, 음수=과거 달
+  const [cat, setCat] = useState('전체') // 카테고리 필터(채소/과일/해산물 등) — '전체'면 다 보임
   const month = (((thisMonth - 1 + offset) % 12) + 12) % 12 + 1
   const year = thisYear + Math.floor((thisMonth - 1 + offset) / 12)
   const canPrev = offset > -11 // 최대 1년 전까지
@@ -67,6 +69,20 @@ export default function Seasonal() {
 
   const prevMonth = () => canPrev && setOffset((o) => o - 1)
   const nextMonth = () => canNext && setOffset((o) => o + 1)
+
+  // 이번 목록에 실제로 존재하는 카테고리만 칩으로 보여준다(빈 칩 방지)
+  const availableCats = useMemo(
+    () => CATEGORIES.filter((c) => seasonal.some((s) => categoryOf(s.item) === c)),
+    [seasonal],
+  )
+  const shown = useMemo(
+    () => (cat === '전체' ? seasonal : seasonal.filter((s) => categoryOf(s.item) === cat)),
+    [seasonal, cat],
+  )
+  // 목록이 새로 바뀌었는데 고른 카테고리가 더 이상 없으면(달이 바뀌는 등) 전체로 되돌림
+  useEffect(() => {
+    if (cat !== '전체' && seasonal.length && !availableCats.includes(cat)) setCat('전체')
+  }, [availableCats, cat, seasonal.length])
 
   return (
     <div>
@@ -89,7 +105,7 @@ export default function Seasonal() {
             >
               <ChevronLeft size={16} />
             </button>
-            <h1 className="text-center font-brand text-[18px] font-extrabold text-ink">
+            <h1 className="text-center font-brand text-[24px] font-extrabold text-ink">
               {month}월, {loc ? loc.city : '남도'}의 제철
             </h1>
             <button
@@ -104,16 +120,41 @@ export default function Seasonal() {
         </div>
       </div>
 
-      {/* 가이드 배너 — 연한 아이보리 박스 */}
-      <div className="mx-5 mt-3 rounded-xl bg-[#F5F2EB] px-3.5 py-2 text-center text-[12px] text-muted-soft">
-        {offset === 0
-          ? '지금이 가장 맛있고 저렴한 때 · 탭하면 12개월 시세를 볼 수 있어요'
-          : `${month}월 제철 식재료와 그달 시세예요`}
+      {/* 가이드 배너 — 연한 아이보리 박스, 왼쪽에 동그란 물음표 아이콘 */}
+      <div className="mx-5 mt-3 flex items-center justify-center gap-1.5 rounded-xl bg-[#F5F2EB] px-3.5 py-2 text-[11px] text-muted-soft">
+        <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-white text-[10px] font-bold leading-none text-muted-soft">
+          ?
+        </span>
+        <span>
+          {offset === 0
+            ? '지금이 가장 맛있고 저렴한 때 · 탭하면 12개월 시세를 볼 수 있어요'
+            : `${month}월 제철 식재료와 그달 시세예요`}
+        </span>
       </div>
+
+      {/* 카테고리 필터 — 이번 목록에 있는 카테고리만 칩으로 노출 */}
+      {availableCats.length > 1 && (
+        <div className="no-scrollbar flex gap-2 overflow-x-auto px-5 pb-1 pt-3">
+          {['전체', ...availableCats].map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setCat(c)}
+              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition ${
+                cat === c
+                  ? 'border-green bg-green text-white'
+                  : 'border-line bg-white text-ink/80'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* 리스트 */}
       <div className="flex flex-col gap-2.5 px-5 py-4">
-        {seasonal.map((s) => {
+        {shown.map((s) => {
           const won = Math.round(s.current ?? 0).toLocaleString('ko-KR')
           const timeLabel = s.month === thisMonth ? '오늘' : `${s.month}월`
           return (
@@ -155,9 +196,9 @@ export default function Seasonal() {
             </Link>
           )
         })}
-        {seasonal.length === 0 && (
+        {shown.length === 0 && (
           <div className="rounded-2xl border border-dashed border-line bg-cream px-4 py-6 text-center text-[13px] text-muted">
-            이번 달 제철 시세 데이터가 없어요
+            {seasonal.length === 0 ? '이번 달 제철 시세 데이터가 없어요' : `이번 달은 ${cat} 제철 품목이 없어요`}
           </div>
         )}
       </div>

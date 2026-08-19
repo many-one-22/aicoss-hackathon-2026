@@ -59,6 +59,7 @@ function fallbackUnit(unit) {
     포기: '1포기',
     봉: '한 봉',
     장: '1장',
+    묶음: '한 묶음',
   };
   return map[unit] || unit;
 }
@@ -69,4 +70,43 @@ export function retailOf(item, current, unit) {
   if (!spec) return { price: Math.round(current), unit: fallbackUnit(unit), hint: null };
   const [mult, label, hint = null] = spec;
   return { price: Math.round(current * mult), unit: label, hint };
+}
+
+/* ── 기준 단위 자체가 잘못 표기된 품목 교정 (가격은 그대로, 라벨만 바로잡음) ──
+   위 SPEC의 '체감 환산'과는 다른 문제다: 여기 있는 품목은 가격 숫자는 맞는데
+   단위 표기(수량)가 데이터 가공 중 잘려서 실제와 다르게 보인다.
+   전 화면(제철 목록·오늘의 제철·재료 상세 통계)에 공통으로 적용해야 하는 '참값' 교정이라
+   trueUnit()으로 따로 두고, client.js의 getSeasonal/getIngredient가 기본 unit으로 사용한다.
+   근거는 역시 가격대. 예) 사과 22,580원이 1개일 리 없고(그럼 사과 1개가 2만원대),
+   10개들이 한 봉지 값으로 보면 개당 2,258원으로 딱 맞는다. */
+const TRUE_UNIT = {
+  // 'g'로 저장됐지만 실제로는 1kg 기준(100g이면 터무니없이 비싸짐)
+  건고추: '1kg',
+  참깨: '1kg',
+  팥: '1kg',
+  녹두: '1kg',
+  콩: '1kg',
+  홍합: '1kg',
+  // 'kg'로 저장됐지만 실제로는 20kg 한 포대/박스 기준
+  쌀: '20kg',
+  절임배추: '20kg',
+  // '마리'로 저장됐지만 실제로는 20마리(한 축) 기준
+  건오징어: '20마리',
+  마른오징어: '20마리',
+  // '개'로 저장됐지만 실제로는 10개들이 한 봉지 기준(1개 값으로 보면 터무니없이 비쌈)
+  오이: '10개',
+  감귤: '10개',
+  단감: '10개',
+  레몬: '10개',
+  배: '10개',
+  복숭아: '10개',
+  사과: '10개',
+  오렌지: '10개',
+  참다래: '10개',
+  참외: '10개',
+}
+
+/* 화면에 보여줄 '참' 단위 라벨(가격 값은 건드리지 않음). */
+export function trueUnit(item, unit) {
+  return TRUE_UNIT[item] || fallbackUnit(unit)
 }
