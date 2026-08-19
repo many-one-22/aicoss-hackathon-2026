@@ -93,23 +93,34 @@ function findCategories(text) {
   return [...found]
 }
 
-function parseIngredientPreference(text) {
+/* 대조 표현("A 말고 B") 기준으로 텍스트를 앞/뒤로 쪼갠다. 재료뿐 아니라 음식유형·상황·건강
+   조건도 전부 이 쪼갠 텍스트를 기준으로 판단해야 한다.
+   [수정 이력] "떡갈비 말고 회"에서 dishType은 원문 전체를 훑어서 "떡갈비"(구이 키워드)랑
+   "회"(회·생물 키워드)가 둘 다 걸려버리는 버그가 있었음 — 제외하겠다는 "떡갈비"까지
+   긍정 조건으로 잡혀서, 회 대신 구이(떡갈비) 집이 추천되는 문제. 재료 필터만 대조표현을
+   이해하고 나머지(dishType 등)는 원문 전체를 그대로 쓰던 게 원인 — 전부 통일함. */
+function splitByContrastive(text) {
   for (const w of CONTRASTIVE_WORDS) {
     const idx = text.indexOf(w)
     if (idx !== -1) {
-      const before = text.slice(0, idx)
-      const after = text.slice(idx + w.length)
-      return {
-        excludeIngredients: [...new Set(INGREDIENTS.filter((ing) => before.includes(ing)))],
-        excludeCategories: findCategories(before),
-        ingredients: [...new Set(INGREDIENTS.filter((ing) => after.includes(ing)))],
-        categories: findCategories(after),
-      }
+      return { before: text.slice(0, idx), after: text.slice(idx + w.length), hasContrastive: true }
     }
   }
-  const mentionedIngredients = [...new Set(INGREDIENTS.filter((ing) => text.includes(ing)))]
-  const mentionedCategories = findCategories(text)
-  const negated = NEGATION_WORDS.some((w) => text.includes(w))
+  return { before: '', after: text, hasContrastive: false }
+}
+
+function parseIngredientPreference(before, after, hasContrastive) {
+  if (hasContrastive) {
+    return {
+      excludeIngredients: [...new Set(INGREDIENTS.filter((ing) => before.includes(ing)))],
+      excludeCategories: findCategories(before),
+      ingredients: [...new Set(INGREDIENTS.filter((ing) => after.includes(ing)))],
+      categories: findCategories(after),
+    }
+  }
+  const mentionedIngredients = [...new Set(INGREDIENTS.filter((ing) => after.includes(ing)))]
+  const mentionedCategories = findCategories(after)
+  const negated = NEGATION_WORDS.some((w) => after.includes(w))
   return negated
     ? { excludeIngredients: mentionedIngredients, excludeCategories: mentionedCategories, ingredients: [], categories: [] }
     : { excludeIngredients: [], excludeCategories: [], ingredients: mentionedIngredients, categories: mentionedCategories }
@@ -117,22 +128,26 @@ function parseIngredientPreference(text) {
 
 export function parseQuery(text) {
   const t = text || ''
-  const { ingredients, excludeIngredients, categories, excludeCategories } = parseIngredientPreference(t)
+  const { before, after, hasContrastive } = splitByContrastive(t)
+  // 대조 표현이 있으면 "after"(진짜 원하는 것)만 보고, 없으면 원문 전체(after=t)를 본다.
+  const positive = after
+
+  const { ingredients, excludeIngredients, categories, excludeCategories } = parseIngredientPreference(before, after, hasContrastive)
 
   const dishType = Object.entries(DISH_TYPE_KW)
-    .filter(([, kws]) => kws.some((k) => t.toLowerCase().includes(k)))
+    .filter(([, kws]) => kws.some((k) => positive.toLowerCase().includes(k)))
     .map(([dt]) => dt)
 
   const situation = Object.entries(SITUATION_KW)
-    .filter(([, kws]) => kws.some((k) => t.includes(k)))
+    .filter(([, kws]) => kws.some((k) => positive.includes(k)))
     .map(([s]) => s)
   const health = []
-  if (t.includes('갑각류') && t.includes('제외')) health.push('갑각류 제외')
-  if (t.includes('조개') && t.includes('제외')) health.push('조개류 제외')
-  if (t.includes('채식') || t.includes('비건')) health.push('채식')
+  if (positive.includes('갑각류') && positive.includes('제외')) health.push('갑각류 제외')
+  if (positive.includes('조개') && positive.includes('제외')) health.push('조개류 제외')
+  if (positive.includes('채식') || positive.includes('비건')) health.push('채식')
   // 해장이면 국물요리 성향으로(원본 recommend 의 상황→유형 근사)
   if (situation.includes('해장') && !dishType.includes('국물요리')) dishType.push('국물요리')
-  const tokens = t.split(/[\s,?!.]+/).filter((x) => x.length >= 2)
+  const tokens = positive.split(/[\s,?!.]+/).filter((x) => x.length >= 2)
   return { dishType, ingredients, excludeIngredients, categories, excludeCategories, situation, health, tokens }
 }
 
