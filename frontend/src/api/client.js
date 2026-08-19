@@ -334,7 +334,8 @@ async function fetchKosbert(text, region) {
 
 export async function chatReply(text, loc = {}) {
   const cityLabel = loc.city || '현재 위치';
-  const region = typeof loc === 'string' ? null : loc.region;
+  // 챗봇엔 광역(전남) 대신 도시(곡성군)를 보낸다 → 전남 사용자도 자기 권역(담양·곡성) 로컬·특산물 결과.
+  const region = typeof loc === 'string' ? null : loc.city || loc.region;
   const origin = originOf(loc);
 
   // 1) KoSBERT 의미검색(백엔드) 우선 — 전체 식당 대상 '진짜 의미검색'
