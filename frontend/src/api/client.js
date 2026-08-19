@@ -350,7 +350,8 @@ async function fetchKosbert(text, region) {
 
 export async function chatReply(text, loc = {}) {
   const cityLabel = loc.city || '현재 위치';
-  const region = typeof loc === 'string' ? null : loc.region;
+  // 챗봇엔 광역(전남) 대신 도시(곡성군)를 보낸다 → 전남 사용자도 자기 권역(담양·곡성) 로컬·특산물 결과.
+  const region = typeof loc === 'string' ? null : loc.city || loc.region;
   const origin = originOf(loc);
 
   // 1) KoSBERT 의미검색(백엔드) 우선 — 전체 식당 대상 '진짜 의미검색'
@@ -379,12 +380,13 @@ export async function chatReply(text, loc = {}) {
   // 2) 폴백: 백엔드 미기동/결과 없음 → 로컬 토큰매칭(번들 3,500곳)
   await delay(300);
   const { filters, fallback, results } = retrieveLocal(text, loc, 4);
+  
   if (!results.length) {
     return {
       messages: [
         {
           who: 'bot',
-          text: `아직 ${cityLabel} 근처에서 딱 맞는 곳을 못 찾았어요. 메뉴(예: 꼬막·게장·백반)나 상황(예: 가족·해장)을 함께 말해주시면 더 정확해집니다.`,
+          text: `음식이나 식당과 관련 없는 단어이거나, ${cityLabel} 근처에서 알맞은 곳을 찾지 못했어요. 메뉴(예: 꼬막, 게장, 백반)나 방문 상황(예: 가족, 해장) 위주로 다시 입력해 주시겠어요?`,
         },
       ],
       hits: [],
