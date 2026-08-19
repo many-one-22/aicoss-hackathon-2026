@@ -342,19 +342,19 @@ export async function chatReply(text, loc = {}) {
   if (data) {
     const results = (data.results || []).map((c) => adoptCard(c, origin));
     if (results.length) {
-      const top = results[0];
-      const bits = enrich(top, loc);
+      const top3 = results.slice(0, 3);
+      const bits = enrich(top3[0], loc);
       const messages = [
         {
           who: 'bot',
-          text: `${cityLabel} 근처 향토음식점으로 이곳을 추천해요. (KoSBERT 의미검색)`,
+          text: `${cityLabel} 근처에서 딱 맞는 향토음식점을 골라봤어요. (KoSBERT 의미검색)`,
         },
-        { who: 'card', restaurant: top },
+        { who: 'cards', restaurants: top3 },
       ];
       if (bits.length)
         messages.push({
           who: 'bot',
-          text: `👍 ${top.name} — ${bits.join(' · ')}`,
+          text: `👍 ${top3[0].name} — ${bits.join(' · ')}`,
         });
       return { messages, hits: results, engine: 'KoSBERT' };
     }
@@ -382,8 +382,8 @@ export async function chatReply(text, loc = {}) {
     ...filters.health,
   ];
   const cond = chips.length ? `‘${chips.slice(0, 3).join(', ')}’ ` : '';
-  const top = results[0]; // 질문당 딱 한 곳만 추천
-  const bits = enrich(top, loc);
+  const top3 = results.slice(0, 3); // 상위 3곳 추천(폐업 대비 + 선택지)
+  const bits = enrich(top3[0], loc);
 
   const messages = [
     {
@@ -392,9 +392,9 @@ export async function chatReply(text, loc = {}) {
         ? `${cityLabel} 근처엔 딱 맞는 곳이 적어 조건을 넓혀 골랐어요. 가장 가까운 이곳을 추천해요.`
         : `${cityLabel} 근처 ${cond}향토음식점으로 이곳을 추천해요.`,
     },
-    { who: 'card', restaurant: top },
+    { who: 'cards', restaurants: top3 },
   ];
   if (bits.length)
-    messages.push({ who: 'bot', text: `👍 ${top.name} — ${bits.join(' · ')}` });
+    messages.push({ who: 'bot', text: `👍 ${top3[0].name} — ${bits.join(' · ')}` });
   return { messages, hits: results };
 }
