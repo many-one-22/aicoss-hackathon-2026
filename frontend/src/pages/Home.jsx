@@ -96,14 +96,11 @@ export default function Home() {
         <span className="absolute -bottom-[6px] right-4 h-3 w-3 rotate-45 border-b border-r border-line bg-white" />
       </div>
 
-      {/* 리드 */}
+      {/* 리드 — 아래 오늘의 제철 카드의 제목 */}
       <div className="px-5 pb-1 pt-4">
         <h1 className="font-brand text-[18px] font-extrabold tracking-tight text-ink">
-          즐겨찾기와 저장된 장소로 취향 탐색
+          추천 제철
         </h1>
-        <p className="mt-1 text-[11px] text-muted">
-          위치와 다녀간 기록을 보고 쓸수록 더 잘 맞는 곳을 골라드려요
-        </p>
       </div>
 
       {/* 오늘의 제철 — 박스 클릭 시 시세 상세, '시장 가는 길'은 네이버 지도 길찾기 */}
@@ -112,7 +109,7 @@ export default function Home() {
           onClick={() => navigate(`/ingredient/${todayItem.item.id}`)}
           className="mx-5 mt-3 block cursor-pointer overflow-hidden rounded-2xl border border-line bg-white shadow-card active:bg-cream"
         >
-          <div className="relative h-[150px]">
+          <div className="relative aspect-[25/16]">
             <PlaceholderImage
               src={imageForIngredient(todayItem.item.item)}
               alt={todayItem.item.item}
