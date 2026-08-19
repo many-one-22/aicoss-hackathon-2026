@@ -7,7 +7,6 @@ import { allergyInfo, seasonalFor, keyIngredientFor } from '../lib/derive.js'
 import { useRestaurantPhoto } from '../hooks/useRestaurantPhoto.js'
 import HeartButton from '../components/HeartButton.jsx'
 import PlaceholderImage from '../components/PlaceholderImage.jsx'
-import ChatFab from '../components/ChatFab.jsx'
 import { recordVisit } from '../store/visits.js'
 
 function NearbyThumb({ r }) {
@@ -206,8 +205,6 @@ export default function PlaceDetail() {
           </div>
         </div>
       )}
-
-      <ChatFab />
     </div>
   )
 }

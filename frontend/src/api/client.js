@@ -15,6 +15,7 @@ import {
 } from '../lib/derive.js';
 import { retrieveLocal, enrich } from '../lib/chatbot.js';
 import { getVisits } from '../store/visits.js';
+import { trueUnit } from '../lib/retailUnit.js';
 
 const delay = (ms = 200) => new Promise((res) => setTimeout(res, ms));
 const LEVEL_ORDER = { 저렴: 0, 평균: 1, 비쌈: 2 };
@@ -163,14 +164,9 @@ function atMonth(s, month, thisMonth) {
 }
 
 /* 단위 표기 교정 — 원본 데이터가 KAMIS 기준 단위를 축약/누락해 저장해 둠. 가격 숫자는 그대로
-   두고 라벨만 실제 소매 기준으로 바로잡는다.
-   - 'g' → '100g' (예: 홍합 2,858원은 /g이 아니라 /100g). 채소·버섯·고추·건어물류 23종.
-   - 오이 '개' → '10개' (오이는 10개 묶음 소매가 ~1.3만원. 무·브로콜리·호박은 1개라 그대로). */
-function fmtUnit(unit, item) {
-  if (unit === 'g') return '100g';
-  if (item === '오이' && unit === '개') return '10개';
-  return unit;
-}
+   두고 라벨만 실제 소매 기준으로 바로잡는다. 품목별 예외(건고추·쌀·사과 등)는 retailUnit.js에서
+   가격대로 근거를 확인해 관리 — 여기서 중복 정의하지 않는다. */
+const fmtUnit = (unit, item) => trueUnit(item, unit);
 
 /* ── 제철 시세 (실데이터) ──
    현재 월에 성수기(peak_months)인 품목만. 광주 사용자는 광주 시세 우선 + 전국 보완.

@@ -93,14 +93,15 @@ export function imageFor(r) {
   return pool ? pickFromPool(pool, r?.id) : DEFAULT_IMAGE
 }
 
-/* 제철 식재료용 이미지 — seasonal.real.json에 등장하는 93종 각각에 실제 그 재료 사진을 매칭.
-   실데이터 id(nat-1, gj-3 등)는 화면마다 달라질 수 있어 식재료 이름(item)으로 매칭한다. */
+/* 제철 식재료용 이미지 — seasonal.real.json에 등장하는 각 품목에 실제 그 재료 사진을 매칭.
+   실데이터 id(nat-1, gj-3 등)는 화면마다 달라질 수 있어 식재료 이름(item)으로 매칭한다.
+   값이 '/images/...' 로 시작하면 직접 넣은 로컬 사진(frontend/public/ 아래)을 쓴다. */
 const ITEM_IMAGES = {
   가리비: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Scallops.jpg',
   간장: 'https://upload.wikimedia.org/wikipedia/commons/1/12/Soy_sauce.jpg',
   갈치: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Galchi-gui.jpg',
   감귤: 'https://upload.wikimedia.org/wikipedia/commons/5/55/Mandarin_orange.jpg',
-  감자: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Fresh_potatoes.jpg',
+  감자: '/images/seasonal/potato.jpg',
   갓: 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Starr-150403-0144-Brassica_juncea-leaf-Southeast_Eastern_Island-Midway_Atoll_(24648901563).jpg',
   건고추: 'https://upload.wikimedia.org/wikipedia/commons/b/b2/Inle_Lake,_Dried_red_chili_(chilli)_pepper,_Capsicum_annuum,_Myanmar.jpg',
   건다시마: 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Japan,_Hokkaido,_drying_kelp_2.jpg',
@@ -148,7 +149,7 @@ const ITEM_IMAGES = {
   브로콜리: 'https://upload.wikimedia.org/wikipedia/commons/4/41/Broccoli.jpg',
   사과: 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Apple.jpg',
   상추: 'https://upload.wikimedia.org/wikipedia/commons/7/74/Lettuce.jpg',
-  새송이버섯: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Pleurotus_eryngii.jpg',
+  새송이버섯: '/images/seasonal/king-oyster-mushroom.jpg',
   새우: 'https://upload.wikimedia.org/wikipedia/commons/a/a6/Shrimp.jpg',
   새우젓: 'https://upload.wikimedia.org/wikipedia/commons/b/b9/Saeu-jeot_1.jpg',
   생강: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Ginger.jpg',
@@ -168,7 +169,6 @@ const ITEM_IMAGES = {
   전복: 'https://upload.wikimedia.org/wikipedia/commons/1/11/Korean_cuisine-Jeonbok_hoe-01.jpg',
   절임배추: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Napa_cabbage.jpg',
   조기: 'https://upload.wikimedia.org/wikipedia/commons/d/d2/Frozen-fresh_yellow_croaker.jpg',
-  즉석밥: 'https://upload.wikimedia.org/wikipedia/commons/a/a3/White_rice.jpg',
   참깨: 'https://upload.wikimedia.org/wikipedia/commons/d/d9/Sesame_seed.jpg',
   참다래: 'https://upload.wikimedia.org/wikipedia/commons/3/38/Kiwifruit.jpg',
   참외: 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Korean_melon-Chamoe-01.jpg',
