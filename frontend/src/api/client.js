@@ -70,7 +70,31 @@ function locFromCity(c, auto = true) {
     label: `${c.name} · ${auto ? '자동감지' : '선택'}`,
   };
 }
+/* 개발용 위치 오버라이드(테스트) — 주소에 ?loc=여수시 를 붙이면 그 도시로 고정.
+   ?loc=off 로 해제. 한 번 넣으면 localStorage에 저장돼 페이지를 옮겨도 유지된다.
+   '여수'처럼 줄여 써도 매칭되게 앞부분 일치도 허용. */
+function _readDevLoc() {
+  try {
+    const q = new URLSearchParams(window.location.search).get('loc');
+    if (q === 'off') {
+      localStorage.removeItem('namdo:devLoc');
+      return null;
+    }
+    if (q) localStorage.setItem('namdo:devLoc', q);
+    const name = q || localStorage.getItem('namdo:devLoc');
+    if (!name) return null;
+    const c =
+      cityByName(name) ||
+      CITIES.find((x) => x.name.startsWith(name) || x.matchCity.startsWith(name));
+    return c ? { ...locFromCity(c, false), label: `${c.name} · 테스트` } : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function detectLocation() {
+  const dev = _readDevLoc();
+  if (dev) return dev;
   const fallback = locFromCity(cityByName('광주'));
   if (!('geolocation' in navigator)) return fallback;
   try {
@@ -101,12 +125,37 @@ export function locationByName(name) {
   return c ? locFromCity(c, false) : null;
 }
 
+const round1 = (v) => Math.round(v * 10) / 10;
+
+/* 선택한 달의 실제 시세를 12개월 trend 이력에서 계산한다.
+   - 이번 달이거나 그 달 이력이 없으면 원본(오늘 기준 실측)을 그대로 사용.
+   - 과거 달은 그 달 가격으로 current/전월比/연평균比/level 을 다시 계산해
+     카드의 숫자와 배지가 서로 어긋나지 않게 한다. */
+function atMonth(s, month, thisMonth) {
+  if (month === thisMonth || !Array.isArray(s.trend)) return s;
+  let i = -1;
+  for (let k = s.trend.length - 1; k >= 0; k--) {
+    if (Number(s.trend[k][0].slice(5, 7)) === month) {
+      i = k;
+      break;
+    }
+  }
+  if (i < 0) return s; // 그 달 이력 없음 → 오늘 기준 유지
+  const cur = s.trend[i][1];
+  const prev = i > 0 ? s.trend[i - 1][1] : null;
+  const vsAvgPct = s.avg12 ? round1(((cur - s.avg12) / s.avg12) * 100) : s.vsAvgPct;
+  const wowPct = prev ? round1(((cur - prev) / prev) * 100) : null;
+  const level = vsAvgPct <= -8 ? '저렴' : vsAvgPct >= 8 ? '비쌈' : '평균';
+  return { ...s, current: cur, vsAvgPct, wowPct, level };
+}
+
 /* ── 제철 시세 (실데이터) ──
    현재 월에 성수기(peak_months)인 품목만. 광주 사용자는 광주 시세 우선 + 전국 보완.
    정렬: 광주 지역 우선 → 구매적기(저렴) → 평년比 낮은 순. */
 export async function getSeasonal(ctx = {}) {
   await delay(120);
-  const month = ctx.month || new Date().getMonth() + 1;
+  const thisMonth = new Date().getMonth() + 1;
+  const month = ctx.month || thisMonth;
   const isGwangju = ctx.region === '광주';
   const inMonth = (s) => s.peak_months.includes(month);
 
@@ -122,7 +171,7 @@ export async function getSeasonal(ctx = {}) {
     list = SEASONAL.filter((s) => s.region === '전국' && inMonth(s));
   }
   return list
-    .map((s) => ({ ...s, month, _regionRank: s.region === '광주' ? 0 : 1 }))
+    .map((s) => ({ ...atMonth(s, month, thisMonth), month, _regionRank: s.region === '광주' ? 0 : 1 }))
     .sort((a, b) => {
       if (a._regionRank !== b._regionRank) return a._regionRank - b._regionRank;
       const lv = (LEVEL_ORDER[a.level] ?? 1) - (LEVEL_ORDER[b.level] ?? 1);
@@ -228,26 +277,18 @@ export async function getTodayRecommendation(loc = {}) {
   };
 }
 
-/* 검색 백엔드 (backend/main.py, /search). 기본 로컬 8000, 환경변수(VITE_SEARCH_API)로 교체 가능. */
-const SEARCH_API = import.meta.env?.VITE_SEARCH_API || 'http://localhost:8000';
-
-/* [수정] 이전 버전은 로컬 검색 뒤에 return이 먼저 있어서 아래 fetch가 죽은 코드였음(항상
-   미실행). 지금은 백엔드 우선 → 실패/에러 시에만 로컬(searchRestaurants)로 폴백. */
 export async function search(query, loc) {
   try {
-    const res = await fetch(`${SEARCH_API}/search`, {
+    const res = await fetch('http://localhost:8000/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query, region: loc?.region, top_k: 10 }),
-      cache: 'no-store', // POST는 원래 잘 캐시 안 되지만, 안전하게 명시
     });
     if (!res.ok) throw new Error('backend error');
     const data = await res.json();
 
     const byId = new Map(RESTAURANTS.map((r) => [String(r.poi_id), r]));
-    const hits = data.results
-      .map((item) => byId.get(String(item.restaurant_id)))
-      .filter(Boolean);
+    const hits = data.results.map((item) => byId.get(String(item.restaurant_id))).filter(Boolean);
 
     return loc ? byDistance(hits, originOf(loc)) : hits;
   } catch (e) {
@@ -280,11 +321,9 @@ async function fetchKosbert(text, region) {
   const qs = new URLSearchParams({ q: text, top_n: '4' });
   if (region) qs.set('region', region);
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 15000); // 8초 -> 15초 (콜드스타트 대비 여유. api_chat.py에 워밍업 추가했지만 이중 안전장치)
+  const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
-    // cache: 'no-store' — 브라우저가 같은 검색어의 예전(고장났던 시절) 응답을 캐시해서
-    // 재사용하는 바람에, 서버는 이미 고쳐졌는데도 화면엔 옛날 결과가 계속 뜨는 문제가 있었음.
-    const resp = await fetch(`${CHAT_API}/chat?${qs}`, { signal: ctrl.signal, cache: 'no-store' });
+    const resp = await fetch(`${CHAT_API}/chat?${qs}`, { signal: ctrl.signal });
     return resp.ok ? await resp.json() : null;
   } catch {
     return null;
@@ -295,30 +334,27 @@ async function fetchKosbert(text, region) {
 
 export async function chatReply(text, loc = {}) {
   const cityLabel = loc.city || '현재 위치';
-  // [수정] 기존엔 loc.city로 좌표 찾는 분기가 빠진 채로 origin을 직접 재계산해서,
-  // 광주 외 지역(여수·순천 등) 사용자는 origin이 항상 null이 되는 문제가 있었음.
-  // originOf(loc)를 그대로 재사용해서 getRestaurantsNear 등과 동일하게 동작하도록 통일.
-  const origin = originOf(loc);
   const region = typeof loc === 'string' ? null : loc.region;
+  const origin = originOf(loc);
 
   // 1) KoSBERT 의미검색(백엔드) 우선 — 전체 식당 대상 '진짜 의미검색'
   const data = await fetchKosbert(text, region);
   if (data) {
     const results = (data.results || []).map((c) => adoptCard(c, origin));
     if (results.length) {
-      const top = results[0];
-      const bits = enrich(top, loc);
+      const top3 = results.slice(0, 3);
+      const bits = enrich(top3[0], loc);
       const messages = [
         {
           who: 'bot',
-          text: `${cityLabel} 근처 향토음식점으로 이곳을 추천해요. (KoSBERT 의미검색)`,
+          text: `${cityLabel} 근처에서 딱 맞는 향토음식점을 골라봤어요. (KoSBERT 의미검색)`,
         },
-        { who: 'card', restaurant: top },
+        { who: 'cards', restaurants: top3 },
       ];
       if (bits.length)
         messages.push({
           who: 'bot',
-          text: `👍 ${top.name} — ${bits.join(' · ')}`,
+          text: `👍 ${top3[0].name} — ${bits.join(' · ')}`,
         });
       return { messages, hits: results, engine: 'KoSBERT' };
     }
@@ -346,8 +382,8 @@ export async function chatReply(text, loc = {}) {
     ...filters.health,
   ];
   const cond = chips.length ? `‘${chips.slice(0, 3).join(', ')}’ ` : '';
-  const top = results[0]; // 질문당 딱 한 곳만 추천
-  const bits = enrich(top, loc);
+  const top3 = results.slice(0, 3); // 상위 3곳 추천(폐업 대비 + 선택지)
+  const bits = enrich(top3[0], loc);
 
   const messages = [
     {
@@ -356,9 +392,9 @@ export async function chatReply(text, loc = {}) {
         ? `${cityLabel} 근처엔 딱 맞는 곳이 적어 조건을 넓혀 골랐어요. 가장 가까운 이곳을 추천해요.`
         : `${cityLabel} 근처 ${cond}향토음식점으로 이곳을 추천해요.`,
     },
-    { who: 'card', restaurant: top },
+    { who: 'cards', restaurants: top3 },
   ];
   if (bits.length)
-    messages.push({ who: 'bot', text: `👍 ${top.name} — ${bits.join(' · ')}` });
+    messages.push({ who: 'bot', text: `👍 ${top3[0].name} — ${bits.join(' · ')}` });
   return { messages, hits: results };
 }
