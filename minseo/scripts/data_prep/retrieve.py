@@ -36,7 +36,7 @@ def _norm_region(region):
         return None
     if region in _GROUPS:
         return region
-    return _CITY_TO_GROUP.get(region.rstrip("시군구"), region)
+    return _CITY_TO_GROUP.get(region.rstrip("시군구"))  # 못 찾으면(광역 '전남' 등) None → 전체에서 거리순
 
 
 _ranker = None
