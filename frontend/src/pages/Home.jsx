@@ -1,7 +1,7 @@
 /* ① 모바일 홈 — 위치 자동감지 · 오늘의 추천 · 찜 기반 추천 · 이번 주 제철(가로 스크롤) */
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Heart } from 'lucide-react';
+import { MapPin, Heart, MousePointer2 } from 'lucide-react';
 import * as api from '../api/client.js';
 import { useFavorites } from '../store/FavoritesContext.jsx';
 import { recommendByFavorites } from '../lib/derive.js';
@@ -73,7 +73,9 @@ export default function Home() {
         <Logo row size={30} />
         <span className="ml-auto flex items-center gap-1 text-[12px] text-muted">
           <MapPin size={18} className="text-terra" fill="#F2993E" />
-          <b className="font-brand text-[15px] font-bold text-terra">{loc.city}</b>
+          <b className="font-brand text-[15px] font-bold text-terra">
+            {loc.city}
+          </b>
         </span>
         <Link
           to="/favorites"
@@ -94,13 +96,14 @@ export default function Home() {
       </header>
 
       {/* 검색 프롬프트 */}
-      <div className="relative mx-5 mt-4 rounded-2xl border border-line bg-white px-4 py-3.5 text-[14px] text-ink">
+      {/* 위(헤더)·아래(리드) 여백을 24px로 맞춘다 — 꼬리 6px와 h1 반행간 6px이 상쇄돼 눈에는 같은 간격 */}
+      <div className="relative mx-5 mt-6 rounded-2xl border border-line bg-white px-4 py-3.5 text-[14px] text-ink">
         지금 {loc.city} 계시죠? 오늘은 이런 식재료는 어때요?
         <span className="absolute -bottom-[6px] right-4 h-3 w-3 rotate-45 border-b border-r border-line bg-white" />
       </div>
 
       {/* 리드 — 아래 오늘의 제철 카드의 제목 */}
-      <div className="pl-9 pr-5 pt-7">
+      <div className="pl-9 pr-5 pt-6">
         <h1 className="font-brand text-[24px] font-extrabold tracking-tight text-ink">
           추천 제철
         </h1>
@@ -121,6 +124,12 @@ export default function Home() {
             />
             <span className="absolute left-3.5 top-3.5 rounded-2xl bg-terra px-3.5 py-1.5 font-brand text-[14px] font-extrabold text-white">
               오늘의 제철
+            </span>
+            {/* 카드 전체가 시세 상세로 가는 링크라는 걸 알려주는 힌트 —
+                커서 아이콘은 클릭 효과선 없는 화살표(MousePointer2)만 쓴다. */}
+            <span className="absolute bottom-3.5 right-3.5 flex items-center gap-1.5 rounded-2xl bg-white/95 px-3 py-1.5 font-brand text-[13px] font-extrabold text-terra shadow-card">
+              <MousePointer2 size={18} strokeWidth={2.2} />
+              시세 보기
             </span>
           </div>
           <div className="flex flex-col gap-1.5 px-4 pb-4 pt-3.5">
@@ -199,13 +208,11 @@ export default function Home() {
       {todayItem?.item && todayItem.restaurants?.length > 0 && (
         <>
           <div className="px-5 pb-1.5 pt-5">
-            <span className="text-[12px] text-muted-soft">
-              {loc.city} 기준 · 밀어서 더 보기
-            </span>
+            <span className="text-[12px] text-muted-soft">{loc.city} 기준</span>
             {/* h2와 링크를 같은 줄에 두고 baseline으로 맞춰 — 글자 크기가 달라도 글씨 밑선이 정확히 일치 */}
             <div className="mt-0.5 flex items-baseline justify-between">
               <h2 className="font-brand text-[19px] font-extrabold text-ink">
-                {withSubjectParticle(todayItem.item.item)} 들어가는 식당
+                {withSubjectParticle(todayItem.item.item)} 들어가는 음식점
               </h2>
               <Link
                 to="/market"

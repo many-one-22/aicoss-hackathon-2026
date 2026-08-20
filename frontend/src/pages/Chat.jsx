@@ -157,6 +157,13 @@ export default function Chat() {
   )
 }
 
+/* 봇 말풍선 안의 **강조** 표기를 굵은 글씨로 바꿔 준다. 그 외 마크다운은 지원하지 않는다. */
+function RichText({ text = '' }) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 ? <b key={i} className="font-bold text-ink">{part}</b> : part,
+  )
+}
+
 function Bubble({ m }) {
   if (m.who === 'user')
     return (
@@ -186,7 +193,7 @@ function Bubble({ m }) {
     )
   return (
     <div className="mr-auto max-w-[80%] rounded-2xl rounded-bl-md bg-white px-4 py-3 text-[15px] leading-relaxed text-ink shadow-card">
-      {m.text}
+      <RichText text={m.text} />
     </div>
   )
 }

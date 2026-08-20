@@ -1,11 +1,11 @@
-/* 하단 고정 탭바 — 홈 / 음식점 / 제철 / 대화. 모든 화면에서 항상 표시. */
+/* 하단 고정 탭바 — 홈 / 제철 / 음식점 / 대화. 모든 화면에서 항상 표시. */
 import { NavLink } from 'react-router-dom'
 import { Home, Store, Sprout, MessageCircle } from 'lucide-react'
 
 const TABS = [
   { to: '/', label: '홈', icon: Home, end: true },
-  { to: '/market', label: '음식점', icon: Store, end: false },
   { to: '/seasonal', label: '제철', icon: Sprout, end: false },
+  { to: '/market', label: '음식점', icon: Store, end: false },
   { to: '/chat', label: '대화', icon: MessageCircle, end: false },
 ]
 
