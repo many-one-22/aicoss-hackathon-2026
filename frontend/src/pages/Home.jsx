@@ -218,7 +218,7 @@ export default function Home() {
           <div
             ref={seasonalDrag.ref}
             {...seasonalDrag.bind}
-            className="flex cursor-grab gap-3 select-none overflow-x-auto overflow-y-hidden px-5 pb-3 active:cursor-grabbing"
+            className="no-scrollbar flex cursor-grab gap-3 select-none overflow-x-auto overflow-y-hidden px-5 pb-3 active:cursor-grabbing"
           >
             {todayItem.restaurants.map((r) => (
               <SeasonalRestaurantCard key={r.id} r={r} />
