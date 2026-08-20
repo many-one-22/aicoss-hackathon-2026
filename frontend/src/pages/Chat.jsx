@@ -90,7 +90,10 @@ export default function Chat() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    /* h-screen(100vh) 뒤에 h-[100dvh] — iOS Safari의 100vh는 주소창·툴바가 숨겨진 상태
+       기준이라 실제 보이는 높이보다 커서 아래쪽에 빈 공간이 생긴다. dvh는 지금 보이는
+       높이를 따라가고, 미지원 브라우저는 앞의 h-screen을 그대로 쓴다. */
+    <div className="flex h-screen h-[100dvh] flex-col">
       <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-cream px-5">
         <LogoMark size={28} className="shrink-0" />
         <span className="font-brand text-[18px] font-black text-green">큐레이터 AI</span>
@@ -139,15 +142,20 @@ export default function Chat() {
               e.preventDefault()
               send()
             }}
-            className="flex flex-1 items-center gap-2 rounded-xl border border-line bg-white py-1.5 pl-4 pr-1.5"
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-line bg-white py-1.5 pl-4 pr-1.5"
           >
+            {/* min-w-0 필수 — 플렉스 기본값(min-width:auto)이면 인풋이 자기 기본 폭(20자)
+                아래로 안 줄어들어서, 좁은 기기(iOS Safari)에선 전송 버튼이 화면 밖으로 밀린다. */}
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="무엇이든 물어보세요"
-              className="flex-1 bg-transparent py-2 text-[15px] text-ink outline-none placeholder:text-muted-soft"
+              className="min-w-0 flex-1 bg-transparent py-2 text-[15px] text-ink outline-none placeholder:text-muted-soft"
             />
-            <button type="submit" className="rounded-lg bg-terra px-4 py-2.5 text-[14px] font-bold text-white">
+            <button
+              type="submit"
+              className="shrink-0 whitespace-nowrap rounded-lg bg-terra px-4 py-2.5 font-brand text-[15px] font-bold text-white"
+            >
               전송
             </button>
           </form>
