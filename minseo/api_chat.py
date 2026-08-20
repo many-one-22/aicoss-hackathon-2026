@@ -30,7 +30,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 HERE = Path(__file__).resolve().parent  # minseo/
 sys.path.insert(0, str(HERE / "scripts" / "data_prep"))
-from retrieve import retrieve
+from retrieve import retrieve, _EXCLUDABLE, _CATEGORY_EXCLUDABLE, _CATEGORY_SYNONYMS
 
 # minseo/의 한 단계 위 = 레포 루트
 DB = HERE.parent / "data" / "processed" / "namdo.sqlite"
@@ -280,6 +280,21 @@ def _price_answer(q: str):
     return out
 
 
+# ── 'A나 B' 재료 나열 처리 ──────────────────────────────────────────────────
+# "감자나 해산물"처럼 재료를 둘 이상 나열하면 KoSBERT 문장 임베딩이 뒤 단어에 쏠려
+# 순서(감자나 해산물 vs 해산물이나 감자)에 따라 결과가 갈린다. 질의에 재료가 2개 이상
+# 등장하면 각각 따로 검색해 라운드로빈으로 섞어(둘 다 고르게) 순서 영향을 없앤다.
+_FOOD_VOCAB = tuple(
+    t for t in (set(_EXCLUDABLE) | set(_CATEGORY_EXCLUDABLE) | set(_CATEGORY_SYNONYMS))
+    if len(t) >= 2  # 한 글자(회 등)는 다른 단어에 오탐되니 제외
+)
+
+
+def _foods_in(q: str):
+    """질의에 등장하는 재료·카테고리 어휘를 정렬해 반환(정렬 → 나열 순서 무관)."""
+    return sorted(t for t in _FOOD_VOCAB if t in q)
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "db": str(DB), "db_exists": DB.exists()}
@@ -296,7 +311,23 @@ def chat(q: str, region: Optional[str] = None, top_n: int = 4):
         return {"query": q, "engine": "price", "kind": "price",
                 "understood": pa["item"] is not None, "results": [], **pa}
     cleaned_q = _clean_query(q)
-    res = retrieve(query=cleaned_q, filters={"region": region} if region else None, top_n=top_n)
+    filt = {"region": region} if region else None
+    foods = _foods_in(cleaned_q)
+    # 부정어가 섞이면(예: "전복 싫고 감자나 고구마") 부정된 재료까지 검색될 수 있어
+    # 멀티검색을 끄고 단일 경로(retrieve의 _parse_exclude가 제외 처리)로 맡긴다.
+    has_neg = any(w in cleaned_q for w in _NEGATION_WORDS)
+    if len(foods) >= 2 and not has_neg:
+        # 재료별로 따로 검색해 라운드로빈으로 섞는다 — 나열 순서와 무관하게 둘 다 노출
+        lists = [retrieve(query=f, filters=filt, top_n=top_n) for f in foods]
+        res, seen = [], set()
+        for i in range(top_n):
+            for lst in lists:
+                if i < len(lst) and lst[i]["rowid"] not in seen:
+                    seen.add(lst[i]["rowid"])
+                    res.append(lst[i])
+        res = res[:top_n]
+    else:
+        res = retrieve(query=cleaned_q, filters=filt, top_n=top_n)
     poi = _poi_map([r["rowid"] for r in res])
     cards = [_card(r, poi.get(r["rowid"])) for r in res]
     return {
